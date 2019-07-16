@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <title>我们来画画吧！</title>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="assets/jquery-3.2.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/vendor/bootstrap-4.0.0/js/bootstrap.min.js"></script>
+    
+    <!-- Paper.js -->
+    <script type="text/javascript" src="assets/paper-full.js"></script>
+   
+    <!-- Pouchdb.js -->
+    <script type="text/javascript" src="assets/pouchdb-7.0.0.min.js"></script>
+
+    <!-- Video.js -->
+    <link href="assets/video-js.css" rel="stylesheet">
+    <script src="assets/video.js"></script>
+    
+    <!-- Main trial sequence.js -->
+    <script src="trial-sequence.js"></script>
+    <meta  name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' />
+
+    <link href="custom.css" media="screen" rel="stylesheet" type="text/css">
+    <link href="assets/vendor/bootstrap-4.0.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div>
+    <div id="landingPage">
+
+        <div class = "row" style="margin-left: 0px; margin-right: 0px; margin-top: 0px; margin-bottom: 0px;">
+            <div class="drawingButton imageButton col-md-3" id="upload" style="margin-left: 4vw;">
+                <img src="images/upload.png" ></img>
+            </div>
+            <div class="col-md-7">
+            </div>
+            <!-- Database delete button hidden for now; can be updated if we want to show it -->
+            <!-- <div class="drawingButton imageButton col-md-1" id="empty_database" style="margin-right: 4vw"> -->
+                <!-- <img src="images/trash.png" ></img> -->
+            <!-- </div> -->
+
+        </div>
+        <p style="font-family: 'Noto Sans TC', sans-serif; text-align:center; font-size:5vw;">我们来画画吧!<p>
+        <img class="imageButton startButton" src="images/play.jpg" id="startConsent"></img>
+
+        <div class = "condition_box">
+           <div class = "row">
+                <div  class="offset-md-2 col-md-4">
+                    <div class="form-group nameForm">
+                        <label>CB</label>
+                        <input id="CB" class="form-control nameInput">
+                    </div>
+                </div>
+                <div  class="offset-md-0 col-md-4">
+                        <div class="form-group nameForm">
+                            <label>SubID</label>
+                            <input id="subID" class="form-control nameInput">
+                        </div>
+                </div>
+            </div>     
+        </div>
+    </div>
+
+    <div id="mainExp" style="display:none">
+
+        
+       <div id="drawingCue" style="padding:1vh;"></div>  
+        <div class = "row" style="margin-right: 0px; margin-left:0px">
+            <div class="col-md-5">
+                <audio>
+                    <source src ="" type = "audio/mp3">
+                </audio>
+                <img id="photocue" src="images_photocues/rabbit_1.png" style="display:none" ></img>
+                <div class="videoDiv" id="cueVideoDiv" style="display:none" poster="http://dummyimage.com/320x240/ffffff/fff" >
+                    <video id='cueVideo' class='video-js' playsinline>  </video>
+                </div>  
+
+            </div> 
+            <canvas class="col-md-6" id="sketchpad" style="display:none"></canvas>
+        </div>
+        
+
+            <div id = "progressBar_Button" class="row" style="display:none;margin-right: 0px; margin-left:0px">
+
+                <div class="col-md-3">
+                    <div class = "drawingButton imageButton" id="keepGoing">
+                        <p id="next"> 下一个 </p>
+                        <img src="images/play.jpg"></img>
+                    </div>
+                </div> 
+   
+               
+                <div class="progress offset-md-0 col-md-7" style="display:none;margin-top:14vh">
+                    <div class="progress-bar bg-info" role="progressbar" aria-valuenow="100"
+                        aria-valuemin="0" aria-valuemax="100" style="width:100%">30
+                    </div>
+
+                </div>
+
+                <div class="col-md-2">
+                 <div class="drawingButton imageButton allDone" id="endGame" style="margin-right:0px;">
+                    <p id="end"> 停 </p>
+                    <img src="images/stop.jpg" ></img>
+                </div>
+                <div>
+
+            </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
+
+

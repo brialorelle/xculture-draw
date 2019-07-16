@@ -1,0 +1,9 @@
+
+auth.txt
+auth_info.txt
+analysis/auth.txt
+analysis/auth_info.txt
+*.DS_Store
+.DS_Store
+.DS_Store
+*.zip

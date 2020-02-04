@@ -8,3 +8,4 @@ analysis/auth_info.txt
 .DS_Store
 *.zip
 *.png
+analysis/1_checksubjects/*

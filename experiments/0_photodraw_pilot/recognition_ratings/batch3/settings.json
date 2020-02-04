@@ -1,0 +1,30 @@
+{
+ "_cosubSpecVersion": 2,
+ "Url": "https://langcog.stanford.edu/expts/BLL/photodraw-recognitionratings/batch3/sketchRecognize_batch3.html",
+ "Title": "Judge some drawings (Set 3)! ",
+ "Description": "See if you can recognize what people were trying to draw in ~100 sketches (you can do multiple sets if you like but not required).",
+ "Keywords": "Object recognition, drawing, psychology game",
+ "Batch": false,
+ "FrameHeight": 600,
+ "AssignmentDuration": "4 hours",
+ "AutoApprovalDelay": "5 minutes",
+ "Reward": "3.00",
+ "QualificationRequirements": [
+  {
+   "Name": "Worker_PercentAssignmentsApproved",
+   "Comparator": "GreaterThanOrEqualTo",
+   "IntegerValues": [
+    85
+   ]
+  },
+  {
+   "Name": "Worker_Locale",
+   "Comparator": "In",
+   "LocaleValues": [
+    {
+     "Country": "US"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,180 @@
+{
+ "production": [
+  {
+   "HIT": {
+    "HITId": "3QXFBUZ4ZKGQAQZUF85XL6OPGKLGUD",
+    "HITTypeId": "3J684U0BLMQRV06IPVMX27GOWN2GGR",
+    "HITGroupId": "3O9FQ5ETYSF8YUWYSF5N8H0VIGZFKU",
+    "CreationTime": "2018-08-06T17:53:52.358Z",
+    "Title": "Judge some drawings (Set 2)! ",
+    "Description": "See if you can recognize what people were trying to draw (you can do multiple sets if you like but not required).",
+    "Question": "<ExternalQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd\">\n  <ExternalURL>https://langcog.stanford.edu/expts/BLL/photodraw-recognitionratings/batch2/sketchRecognize_batch2.html</ExternalURL>\n  <FrameHeight>600</FrameHeight>\n</ExternalQuestion>",
+    "Keywords": "Object recognition, drawing, psychology game",
+    "HITStatus": "Assignable",
+    "MaxAssignments": 9,
+    "Reward": "3.00",
+    "AutoApprovalDelayInSeconds": 300,
+    "Expiration": "2018-08-06T21:53:52.358Z",
+    "AssignmentDurationInSeconds": 14400,
+    "QualificationRequirements": [
+     {
+      "QualificationTypeId": "000000000000000000L0",
+      "Comparator": "GreaterThanOrEqualTo",
+      "IntegerValues": [
+       85
+      ],
+      "RequiredToPreview": false,
+      "ActionsGuarded": "Accept"
+     },
+     {
+      "QualificationTypeId": "00000000000000000071",
+      "Comparator": "In",
+      "LocaleValues": [
+       {
+        "Country": "US"
+       }
+      ],
+      "RequiredToPreview": false,
+      "ActionsGuarded": "Accept"
+     }
+    ],
+    "HITReviewStatus": "NotReviewed",
+    "NumberOfAssignmentsPending": 0,
+    "NumberOfAssignmentsAvailable": 9,
+    "NumberOfAssignmentsCompleted": 0
+   }
+  },
+  {
+   "HIT": {
+    "HITId": "31HLTCK4BLVQN5OUKYF2HSQ8URUGV2",
+    "HITTypeId": "3J684U0BLMQRV06IPVMX27GOWN2GGR",
+    "HITGroupId": "3O9FQ5ETYSF8YUWYSF5N8H0VIGZFKU",
+    "CreationTime": "2018-08-06T17:53:53.366Z",
+    "Title": "Judge some drawings (Set 2)! ",
+    "Description": "See if you can recognize what people were trying to draw (you can do multiple sets if you like but not required).",
+    "Question": "<ExternalQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd\">\n  <ExternalURL>https://langcog.stanford.edu/expts/BLL/photodraw-recognitionratings/batch2/sketchRecognize_batch2.html</ExternalURL>\n  <FrameHeight>600</FrameHeight>\n</ExternalQuestion>",
+    "Keywords": "Object recognition, drawing, psychology game",
+    "HITStatus": "Assignable",
+    "MaxAssignments": 9,
+    "Reward": "3.00",
+    "AutoApprovalDelayInSeconds": 300,
+    "Expiration": "2018-08-06T21:53:53.366Z",
+    "AssignmentDurationInSeconds": 14400,
+    "QualificationRequirements": [
+     {
+      "QualificationTypeId": "000000000000000000L0",
+      "Comparator": "GreaterThanOrEqualTo",
+      "IntegerValues": [
+       85
+      ],
+      "RequiredToPreview": false,
+      "ActionsGuarded": "Accept"
+     },
+     {
+      "QualificationTypeId": "00000000000000000071",
+      "Comparator": "In",
+      "LocaleValues": [
+       {
+        "Country": "US"
+       }
+      ],
+      "RequiredToPreview": false,
+      "ActionsGuarded": "Accept"
+     }
+    ],
+    "HITReviewStatus": "NotReviewed",
+    "NumberOfAssignmentsPending": 0,
+    "NumberOfAssignmentsAvailable": 9,
+    "NumberOfAssignmentsCompleted": 0
+   }
+  },
+  {
+   "HIT": {
+    "HITId": "36AZSFEYZ40UWOGJ4CNOGHZBEE2BVG",
+    "HITTypeId": "3J684U0BLMQRV06IPVMX27GOWN2GGR",
+    "HITGroupId": "3O9FQ5ETYSF8YUWYSF5N8H0VIGZFKU",
+    "CreationTime": "2018-08-06T17:53:54.355Z",
+    "Title": "Judge some drawings (Set 2)! ",
+    "Description": "See if you can recognize what people were trying to draw (you can do multiple sets if you like but not required).",
+    "Question": "<ExternalQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd\">\n  <ExternalURL>https://langcog.stanford.edu/expts/BLL/photodraw-recognitionratings/batch2/sketchRecognize_batch2.html</ExternalURL>\n  <FrameHeight>600</FrameHeight>\n</ExternalQuestion>",
+    "Keywords": "Object recognition, drawing, psychology game",
+    "HITStatus": "Assignable",
+    "MaxAssignments": 9,
+    "Reward": "3.00",
+    "AutoApprovalDelayInSeconds": 300,
+    "Expiration": "2018-08-06T21:53:54.355Z",
+    "AssignmentDurationInSeconds": 14400,
+    "QualificationRequirements": [
+     {
+      "QualificationTypeId": "000000000000000000L0",
+      "Comparator": "GreaterThanOrEqualTo",
+      "IntegerValues": [
+       85
+      ],
+      "RequiredToPreview": false,
+      "ActionsGuarded": "Accept"
+     },
+     {
+      "QualificationTypeId": "00000000000000000071",
+      "Comparator": "In",
+      "LocaleValues": [
+       {
+        "Country": "US"
+       }
+      ],
+      "RequiredToPreview": false,
+      "ActionsGuarded": "Accept"
+     }
+    ],
+    "HITReviewStatus": "NotReviewed",
+    "NumberOfAssignmentsPending": 0,
+    "NumberOfAssignmentsAvailable": 9,
+    "NumberOfAssignmentsCompleted": 0
+   }
+  },
+  {
+   "HIT": {
+    "HITId": "3QGHA0EA0J07BDGOUMSK2JIPLN4BWQ",
+    "HITTypeId": "3J684U0BLMQRV06IPVMX27GOWN2GGR",
+    "HITGroupId": "3O9FQ5ETYSF8YUWYSF5N8H0VIGZFKU",
+    "CreationTime": "2018-08-06T17:53:55.281Z",
+    "Title": "Judge some drawings (Set 2)! ",
+    "Description": "See if you can recognize what people were trying to draw (you can do multiple sets if you like but not required).",
+    "Question": "<ExternalQuestion xmlns=\"http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2006-07-14/ExternalQuestion.xsd\">\n  <ExternalURL>https://langcog.stanford.edu/expts/BLL/photodraw-recognitionratings/batch2/sketchRecognize_batch2.html</ExternalURL>\n  <FrameHeight>600</FrameHeight>\n</ExternalQuestion>",
+    "Keywords": "Object recognition, drawing, psychology game",
+    "HITStatus": "Assignable",
+    "MaxAssignments": 3,
+    "Reward": "3.00",
+    "AutoApprovalDelayInSeconds": 300,
+    "Expiration": "2018-08-06T21:53:55.281Z",
+    "AssignmentDurationInSeconds": 14400,
+    "QualificationRequirements": [
+     {
+      "QualificationTypeId": "000000000000000000L0",
+      "Comparator": "GreaterThanOrEqualTo",
+      "IntegerValues": [
+       85
+      ],
+      "RequiredToPreview": false,
+      "ActionsGuarded": "Accept"
+     },
+     {
+      "QualificationTypeId": "00000000000000000071",
+      "Comparator": "In",
+      "LocaleValues": [
+       {
+        "Country": "US"
+       }
+      ],
+      "RequiredToPreview": false,
+      "ActionsGuarded": "Accept"
+     }
+    ],
+    "HITReviewStatus": "NotReviewed",
+    "NumberOfAssignmentsPending": 0,
+    "NumberOfAssignmentsAvailable": 3,
+    "NumberOfAssignmentsCompleted": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,142 @@
+---
+title: "tsinghua-subids"
+author: "Bria Long"
+date: "1/16/2020"
+output: html_document
+---
+
+```{r, libraries}
+library(png)
+library(grid)
+library(ggplot2)
+library(xtable)
+library(knitr)
+library(tidyverse)
+library(assertthat)
+library(ggthemes)
+library(lme4)
+library(langcog)
+library(viridis)
+library(magick)
+library(stringr)
+library(egg)
+theme_set(theme_few())
+```
+
+```{r}
+is_test = c('Ipad5',
+'P0000',
+'Test',
+'Test4',
+'Test5','Ipad2_tes3','Ipad1','ipad4_Test1','ipad4_Test1')
+
+# ids in database
+IDs_DB <- read_csv('subject_logs/subIDs_afterNov15.csv') %>%
+  rowwise() %>%
+  mutate(is_test = str_detect(subID,'test')) %>%
+  filter(is_test==FALSE) %>%
+  mutate(ID_Database = str_replace_all(subID,' ','')) %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'-','_'))  %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'__','_')) %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'I','i'))  %>%
+  mutate(ID_Database = str_to_upper(ID_Database))  %>%
+  mutate(iPad_Used = str_split(ID_Database,"[_]")[[1]][1],Short_SubID = str_split(ID_Database,"[_]")[[1]][2]) 
+
+
+# ids in subject log
+IDs_SL <- read_csv('subject_logs/KIDDRW_THU_cleaned.csv') %>%
+  select(age, gender, ID_age, CB, ID, note,db_mismatch) %>%
+  rowwise() %>%
+  mutate(ID_SubjectLog = str_replace_all(ID,' ','')) %>%
+  mutate(ID_SubjectLog = str_replace_all(ID_SubjectLog,'-','_'))  %>%
+  mutate(ID_SubjectLog = str_replace_all(ID_SubjectLog,'__','_')) %>%
+  mutate(ID_SubjectLog = str_replace_all(ID_SubjectLog,'I','i'))  %>%
+  mutate(ID_SubjectLog = str_to_upper(ID_SubjectLog))  %>%
+  mutate(iPad_Used = str_split(ID_SubjectLog,"[_]")[[1]][1],Short_SubID = str_split(ID_SubjectLog,"[_]")[[1]][2]) 
+
+
+merged <- IDs_SL %>%
+  left_join(IDs_DB, by=c("iPad_Used","Short_SubID"))
+
+mismatch <- merged %>%
+  filter(is.na(ID_Database)) %>%
+  select(-db_mismatch, -subID, -is_test, -note)
+
+db_only <- IDs_DB %>%
+  left_join(IDs_SL, by=c("iPad_Used","Short_SubID")) %>%
+  filter(is.na(ID_SubjectLog))
+
+write_csv(db_only,'db_only_IDs.csv')
+write_csv(mismatch,'no_db_entry.csv')
+
+
+```
+
+
+```{r}
+
+
+
+# no_ipad_assigned = c("IPA2_THU9F41"  , "IPAD_THU5F6"  , "IPAD_THU6F13" ,  "IPAD_THU7M12"  , "IPAD_THU8M21" )
+# 
+# #mismatch candidates
+# 
+# mismatch_maybes <- c('IPAD1_1THU6F30', 
+
+match_count=0
+subid_count=0
+sorted_DB_Ids=array()
+reported_IDS <- unique(reported_IDS)
+db_IDS <- IDs$ID_Database
+for (this_subid in reported_IDS){
+  subid_count = subid_count +1
+  match = !is.na(str_detect(this_subid, db_IDS))
+  
+  # if any matches
+  if (sum(match)>0){
+  match_count = match_count +1
+  match_ind = which(!is.na(str_locate(this_subid, db_IDS)))[1]
+  
+  
+  sorted_DB_Ids[subid_count] = db_IDS[match_ind]
+  }
+  else{
+  sorted_DB_Ids[subid_count] = 'NA'
+  }
+  
+}
+```
+
+```{r}
+# ID_matches = bind_cols(data.frame(reported_IDS), data.frame(sorted_DB_Ids))
+# num_matches = sum(!is.na(ID_matches$sorted_DB_Ids))
+# need_matches = ID_matches$reported_IDS[is.na(ID_matches$sorted_DB_Ids)]
+
+```
+
+```{r}
+db_sorted = sort(IDs$ID_Database)
+not_matched_db <- as_tibble(db_sorted) %>%
+  filter(!is.na(value)) %>%
+  filter(!value %in% sorted_DB_Ids) %>%
+  rowwise() %>%
+  mutate(iPad_Used = str_split(value,"[_]")[[1]][1],SubID = str_split(value,"[_]")[[1]][2]) %>%
+  mutate(age = str_split_fixed(SubID,'THU',2)[,2])
+
+need_matches <- as_tibble(need_matches) %>%
+  rowwise() %>%
+  mutate(iPad_Used = str_split(value,"[_]")[[1]][1],SubID = str_split(value,"[_]")[[1]][2]) %>%
+  mutate(maybe_match = SubID %in% not_matched_db$SubID)
+
+super_confused <- need_matches %>%
+  filter(maybe_match==FALSE)
+
+## typo
+IPAD1_1THU6F30 = IPAD1_THU6F30
+
+# 
+# write_csv(not_matched_db, "non-matched-db.csv")
+# write_csv(as_tibble(need_matches), "Tsinghua_DB_need_matches.csv")
+# db_sorted = sort(IDs$ID_Database)
+
+```

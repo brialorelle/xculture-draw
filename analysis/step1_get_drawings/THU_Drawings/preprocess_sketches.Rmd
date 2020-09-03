@@ -1,5 +1,5 @@
 ---
-title: "preprocess_sketches"
+title: "preprocess_sketches THU"
 author: "Bria Long"
 date: "9/2/2020"
 output: html_document
@@ -26,8 +26,11 @@ demo = read_csv(final_subject_info)
 
 ```{r}
 drawing_path = here::here('data/THU/drawings/full_set/')
-filtered_dataset_path =  here::here('data/THU/drawings/filtered_dataset')
-dir.create(filtered_dataset_path)
+# filtered_dataset_path =  here::here('data/THU/drawings/filtered_dataset')
+# filtered_dataset_path =  here::here('data/THU/drawings/object_drawings')
+compiled_dataset_path = here::here('data/compiled/drawings/object_drawings')
+# dir.create(filtered_dataset_path)
+dir.create(compiled_dataset_path)
 ```
 
 
@@ -49,23 +52,29 @@ drawing_info = all_drawings %>%
     mutate(ID_Database = str_replace_all(ID_Database,'I','i'))  %>%
     mutate(ID_Database = str_to_upper(ID_Database))  %>%
     mutate(iPad_Used = str_split(ID_Database,"[_]")[[1]][1],Short_SubID = str_split(ID_Database,"[_]")[[1]][2]) %>%
-   select(ID_Database, better_filename, fileNameShort, fullPath, category, condition)
+   select(ID_Database, fileNameShort, fullPath, category, condition)
  
 ```
 
 
 ```{r}
+practice_categories = c('triangle','this shape','this square','rectangle')
+
+
 drawings_to_include <- drawing_info %>%
   left_join(demo, by=c('ID_Database')) %>%
   filter(!is.na(Age)) %>%
   mutate(age_group = floor(Age)) %>%
-  mutate(better_filename = paste0(condition, '_',category, '_sketch_age',age_group, '_', ID_Database,'.png')) 
+  mutate(better_filename = paste0(condition, '_',category, '_sketch_age',age_group, '_', ID_Database,'.png'))  %>%
+  filter(!category %in% practice_categories)
 
 ```
 
 # copy included drawings and rename
 ```{r}
-file.copy(fs::path(drawing_path, drawings_to_include$fullPath), fs::path(filtered_dataset_path, drawings_to_include$better_filename))
+# file.copy(fs::path(drawing_path, drawings_to_include$fullPath), fs::path(filtered_dataset_path, drawings_to_include$better_filename))
+
+file.copy(fs::path(drawing_path, drawings_to_include$fullPath), fs::path(compiled_dataset_path, drawings_to_include$better_filename))
 ```
 
 ```{r}

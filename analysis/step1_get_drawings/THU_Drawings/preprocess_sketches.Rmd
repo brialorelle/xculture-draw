@@ -1,0 +1,78 @@
+---
+title: "preprocess_sketches"
+author: "Bria Long"
+date: "9/2/2020"
+output: html_document
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readr)
+library(assertthat)
+library(knitr)
+library(here)
+library(lubridate)
+```
+
+
+```{r}
+final_subject_info = here::here('data/THU/demographics/final_subject_info.csv')
+demo = read_csv(final_subject_info)
+```
+
+```{r}
+drawing_path = here::here('data/THU/drawings/full_set/')
+filtered_dataset_path =  here::here('data/THU/drawings/filtered_dataset')
+dir.create(filtered_dataset_path)
+```
+
+
+
+```{r}
+all_drawings = list.files(path=drawing_path, pattern = ".png$", recursive = TRUE) %>%
+    as_tibble()  %>%
+    rename(fullPath = value) 
+    
+drawing_info = all_drawings %>%
+    mutate(fileNameShort = str_split_fixed(fullPath,"/",2)[,2]) %>%
+    mutate(condition = str_split_fixed(fileNameShort,"_",2)[,1]) %>%
+    mutate(category = str_split_fixed(fileNameShort,"_",3)[,2]) %>%
+    mutate(raw_db_id = str_split_fixed(fileNameShort,"_",4)[,4]) %>%
+    mutate(raw_db_id = str_split_fixed(raw_db_id,"_20",2)[,1]) %>%
+    mutate(ID_Database = str_replace_all(raw_db_id,' ','')) %>%
+    mutate(ID_Database = str_replace_all(ID_Database,'-','_'))  %>%
+    mutate(ID_Database = str_replace_all(ID_Database,'__','_')) %>%
+    mutate(ID_Database = str_replace_all(ID_Database,'I','i'))  %>%
+    mutate(ID_Database = str_to_upper(ID_Database))  %>%
+    mutate(iPad_Used = str_split(ID_Database,"[_]")[[1]][1],Short_SubID = str_split(ID_Database,"[_]")[[1]][2]) %>%
+   select(ID_Database, better_filename, fileNameShort, fullPath, category, condition)
+ 
+```
+
+
+```{r}
+drawings_to_include <- drawing_info %>%
+  left_join(demo, by=c('ID_Database')) %>%
+  filter(!is.na(Age)) %>%
+  mutate(age_group = floor(Age)) %>%
+  mutate(better_filename = paste0(condition, '_',category, '_sketch_age',age_group, '_', ID_Database,'.png')) 
+
+```
+
+# copy included drawings and rename
+```{r}
+file.copy(fs::path(drawing_path, drawings_to_include$fullPath), fs::path(filtered_dataset_path, drawings_to_include$better_filename))
+```
+
+```{r}
+
+drawings_by_category <- drawings_to_include %>%
+  group_by(category, condition) %>%
+  summarize(num_drawings = length(fileNameShort))
+
+
+```

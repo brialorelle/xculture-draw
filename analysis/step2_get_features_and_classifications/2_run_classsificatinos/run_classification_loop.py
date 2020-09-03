@@ -99,7 +99,7 @@ def get_classifications(test_index):
 ################################################################################################################################
 
 #### SPECIFY PARAMETERS
-DATASET = 'compiled' ## no features yet
+DATASET = 'photodraw_compiled' ## no features yet
 LAYER_IND = 6
 OUT_PATH = 'classification-outputs-092020'
 REGULARIZE_PARAM = .1

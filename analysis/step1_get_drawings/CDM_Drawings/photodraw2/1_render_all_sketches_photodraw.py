@@ -32,12 +32,12 @@ exclude_ids = ['102618_3',
 # set path to database connectinos 
 auth = pd.read_csv('auth.txt', header = None) 
 pswd = auth.values[0][0]
-user = 'sketchloop'
-host = 'rxdhawkins.me' ## cocolab ip address
+user = 'stanford'
+host = 'stanford-cogsci.org' ## cocolab ip address
 
 ## use pymongo for database
 import pymongo as pm
-conn = pm.MongoClient('mongodb://sketchloop:' + pswd + '@127.0.0.1')
+conn = pm.MongoClient('mongodb://stanford:' + pswd + '@127.0.0.1')
 db = conn['kiddraw']
 photodraw_e2 = db['CDM_photodraw_e2']
 
@@ -231,4 +231,4 @@ for s in subIDS_to_render:
 X_out = pd.DataFrame([session_id,trial_num,category,age,submit_time,submit_date,num_strokes,draw_duration_old,draw_duration_new,trial_duration, mean_intensity, bounding_box, filename,condition, CB, subID, image_name])
 X_out = X_out.transpose()
 X_out.columns = ['session_id','trial_num','category','age','submit_time','submit_date','num_strokes','draw_duration_old','draw_duration_new','trial_duration','mean_intensity','bounding_box','filename','condition','CB','subID','image_name']
-X_out.to_csv(os.path.join(output_dir,'MuseumStation_AllDescriptives_{}_images_final_{}.csv'.format(writeImageCount,which_run)))   
+X_out.to_csv(os.path.join(output_dir,'Photodraw2_CDM_AllDescriptives_{}_images_final_{}.csv'.format(writeImageCount,which_run)))   

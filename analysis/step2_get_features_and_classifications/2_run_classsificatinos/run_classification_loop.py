@@ -37,8 +37,8 @@ It will spawn several threads to get predictions from all splits and models.
 
 def load_features(cohort, layer_num):
     layers = ['P1','P2','P3','P4','P5','FC6','FC7']    
-    F = np.load('/data3/bria/kiddraw_datasets/{}/features/FEATURES_{}_{}_Spatial_True.npy'.format(DATASET,layers[layer_num],cohort))
-    M = pd.read_csv('/data3/bria/kiddraw_datasets/{}/features/METADATA_{}.csv'.format(DATASET, cohort)) 
+    F = np.load('/home/bria/devphotodraw/data/{}/features/FEATURES_{}_{}_Spatial_True.npy'.format(DATASET,layers[layer_num],cohort))
+    M = pd.read_csv('/home/bria/devphotodraw/data/{}/features/METADATA_{}.csv'.format(DATASET, cohort)) 
     #  F = np.load('/Users/brialong/Documents/GitHub/kiddraw/analysis/museumstation/feature_space_analyses/features/{}/FEATURES_{}_{}_Spatial_True.npy'.format(DATASET,layers[layer_num],cohort))
     # M = pd.read_csv('/Users/brialong/Documents/GitHub/kiddraw/analysis/museumstation/feature_space_analyses/features/{}/METADATA_{}.csv'.format(DATASET, cohort)) 
     M = M[['label','age','session']]
@@ -94,21 +94,21 @@ def get_classifications(test_index):
     print 'finished and saving!'
     if not os.path.exists(out_path_specific):
         os.makedirs(out_path_specific)
-    out.to_csv(os.path.join(out_path_specific,'photodraw2_subset_classification_ind_{}.csv'.format(test_index_numeric)))
+    out.to_csv(os.path.join(out_path_specific,'devphotodraw_all_classification_ind_{}.csv'.format(test_index_numeric)))
 
 ################################################################################################################################
 
 #### SPECIFY PARAMETERS
-DATASET = 'photodraw2_030719' ## no features yet
+DATASET = 'compiled' ## no features yet
 LAYER_IND = 6
-OUT_PATH = 'classification-outputs-030719'
+OUT_PATH = 'classification-outputs-092020'
 REGULARIZE_PARAM = .1
 
 # start clock
 start_time = time.time()
 
-start_ind=10
-end_ind=100
+start_ind=0
+end_ind=1000
 
 for this_ind in range(start_ind, end_ind):
 	print 'getting classifications for index {}'.format(this_ind)

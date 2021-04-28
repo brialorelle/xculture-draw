@@ -8,7 +8,6 @@ function showSlide(id) {
 	$("#"+id).show();
 }
 
-
 // Get random integers.
 // When called with no arguments, it returns either 0 or 1. When called with one argument, *a*, it returns a number in {*0, 1, ..., a-1*}. When called with two arguments, *a* and *b*, returns a random value in {*a*, *a + 1*, ... , *b*}.
 function random(a,b) {
@@ -152,7 +151,7 @@ showSlide("instructions"); // Show the instructions slide -- this is what we wan
 // ############################## The main event ##############################
 var experiment = {
 
-	// The object to be submitted.
+	// The object to be submitted; needs to have all columns in it.
 	data: {
         sub_id: [],
         guessed_category: [],
@@ -189,7 +188,7 @@ var experiment = {
                 dataType: 'recognition_rating',
                 dbname:'devphotodraw_recognition',
                 colname: 'batched_12afc', 
-                guessed_category: response,
+                guessed_category: response, 
                 imageCategory: document.getElementById("imagePlaceholder").name,
                 imageName: document.getElementById("imagePlaceholder").src,
             }

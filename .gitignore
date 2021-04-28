@@ -35,7 +35,7 @@ analysis/step4_main_analyses/1_examine_recognition/raw_recognition_data/*
 data/CDM/drawings/_data_3_2020/*
 
 # not ready yet to be commited
-experiments/Recognition_ratings/*
+# experiments/Recognition_ratings/*
 
 # old gitignore
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.csv
@@ -71,3 +71,4 @@ data/CDM/drawings/data_3_2020/photodraw2_descriptives/Photodraw2_SRCD_cleaned_da
 data/CDM/drawings/data_3_2020/photodraw2_descriptives/Photodraw2_1619_images_metadata.csv
 .Rproj.user
 analysis/step1_get_drawings/CDM_Drawings/photodraw2/1_render_all_sketches_photodraw 2.py
+analysis/step1_get_drawings/THU_Drawings/preprocess_sketches 2.Rmd

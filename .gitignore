@@ -8,13 +8,20 @@ analysis/auth_info.txt
 .DS_Store
 *.zip
 *.png
+#  ignore old scripts
 analysis/_main_analyses_only_cdm_srcd/*
 analysis/_photodraw_pilot/*
-analysis/1_checksubjects/*\
+
+analysis/step1_get_drawings/CDM_Drawings/photodraw2/_old/*
+
 # ignore all old drawings and descriptives
 analysis/step1_get_drawings/THU_Drawings/1_download_sketches/_old_rendered_drawings/*
 analysis/step1_get_drawings/THU_Drawings/1_download_sketches/.ipynb_checkpoints/*
 analysis/step1_get_drawings/THU_Drawings/1_download_sketches/_dev/*
+
+# ignore old code to get cumnulative drawings
+analysis/step1_get_drawings/_get_cumulative_drawings/*
+
 # ignore many old subject log archives
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/_archived_detailed_logs/*
 
@@ -27,8 +34,10 @@ analysis/step3_check_classifications/_old_CDM_Drawings_only/*
 analysis/step4_main_analyses/1_examine_recognition/raw_recognition_data/*
 data/CDM/drawings/_data_3_2020/*
 
+# not ready yet to be commited
 experiments/Recognition_ratings/*
 
+# old gitignore
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.csv
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.xlsx
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU_cleaned.csv

@@ -22,14 +22,14 @@ if(argv.gameport) {
     console.log('no gameport specified: using 8880\nUse the --gameport flag to change');
 }
 
-var mode;
-if(argv.mode) {
-    mode = argv.mode;
-    console.log('using mode ' + mode);
-} else {
-    mode = "CDM";
-    console.log('no mode specified: using CDM\nUse the --mode flag to change');
-}
+// var mode;
+// if(argv.mode) {
+//     mode = argv.mode;
+//     console.log('using mode ' + mode);
+// } else {
+//     mode = "CDM";
+//     console.log('no mode specified: using CDM\nUse the --mode flag to change');
+// }
 
 
 try {
@@ -69,27 +69,27 @@ io.on('connection', function (socket) {
 
 });
 
-var serveFile = function(req, res) {
-    var fileName = req.params[0];
+// var serveFile = function(req, res) {
+//     var fileName = req.params[0];
 
-    if (fileName == "send"){
-        console.log('sending the consent form to the parent email');
-        sendEmail(req,res);
+//     if (fileName == "send"){
+//         console.log('sending the consent form to the parent email');
+//         sendEmail(req,res);
 
-    }else if(fileName == "mode"){
-        console.log ("mode: " + mode);
-        res.send({'mode':mode});
+//     }else if(fileName == "mode"){
+//         console.log ("mode: " + mode);
+//         res.send({'mode':mode});
 
-    }else{
-        console.log('\t :: Express :: file requested: ' + fileName);
-        return res.sendFile(fileName, {root: __dirname});
-    }
+//     }else{
+//         console.log('\t :: Express :: file requested: ' + fileName);
+//         return res.sendFile(fileName, {root: __dirname});
+//     }
 
-};
+// };
 
 var writeDataToMongo = function(data) {
     sendPostRequest(
-        'http://localhost:4000/db/insert',
+        'http://localhost:4040/db/insert',
         { json: data },
         (error, res, body) => {
         if (!error && res.statusCode === 200) {

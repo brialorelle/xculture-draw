@@ -76,7 +76,7 @@ function shuffle_mult() {
 // ######################## Configuration settings ############################
 
 // connect to node.js
-socket = io.connect('http://localhost:4040');
+socket = io.connect();
 
 //set up trials from csv
 $(document).ready(function() {
@@ -87,10 +87,10 @@ $.ajax({
         dataType: "text",
         success: function(data) {
             results = Papa.parse(data);
-            
             imgArray = new Array();
             //set up image names
-            for (i = 0; i < results.data.length; i++) {
+            // skip row 0 = headers
+            for (i = 1; i < results.data.length; i++) { 
                 var imageName= results.data[i][8]; //starts i at 1 to get rid of header
                 var imageCategory=results.data[i][3]
                 imgArray[i] = new Image();

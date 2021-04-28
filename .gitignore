@@ -8,7 +8,11 @@ analysis/auth_info.txt
 .DS_Store
 *.zip
 *.png
-analysis/1_checksubjects/*
+analysis/_main_analyses_only_cdm_srcd/*
+analysis/_photodraw_pilot/*
+analysis/1_checksubjects/*\
+
+
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.csv
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.xlsx
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU_cleaned.csv
@@ -40,3 +44,4 @@ analysis/step1_get_drawings/CDM_Drawings/photodraw2/photodraw2_descriptives/Phot
 analysis/step1_get_drawings/CDM_Drawings/photodraw2/photodraw2_descriptives/Photodraw2_AllDescriptives_900_images_CDM_photodraw_e2_start_0.csv
 data/CDM/drawings/data_3_2020/photodraw2_descriptives/Photodraw2_SRCD_cleaned_data_4-8.csv
 data/CDM/drawings/data_3_2020/photodraw2_descriptives/Photodraw2_1619_images_metadata.csv
+.Rproj.user

@@ -24,6 +24,11 @@ analysis/step3_check_classifications/compiled/*
 #
 analysis/step3_check_classifications/_old_CDM_Drawings_only/*
 
+analysis/step4_main_analyses/1_examine_recognition/raw_recognition_data/*
+data/CDM/drawings/_data_3_2020/*
+
+experiments/Recognition_ratings/*
+
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.csv
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.xlsx
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU_cleaned.csv

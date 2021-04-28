@@ -1,0 +1,242 @@
+---
+title: "main_analyses_prereg"
+author: "Bria Long"
+date: "4/28/2021"
+output: html_document
+---
+
+
+
+
+## Load compiled classification data
+
+
+```{r load-classifications}
+classification_data <- read.csv(here::here('data/compiled/compiled_classifications/Classification_Outputs2832.csv')) %>%
+  as_tibble() %>%
+  # mutate(session_id = paste('cdm_',session_id,sep="")) %>%
+  mutate(age_numeric = age) %>%
+  mutate(age = paste('age',age,sep="")) %>%
+  mutate(age = as.factor(age)) %>%
+  mutate(category = target_label) %>% 
+  # mutate(image_name = paste(category,'_sketch_', age,'_', session_id,'.png',sep="")) %>%
+  select(-X, -X.1, -index) %>%
+  mutate(site = case_when( is.na(str_locate(session_id,'photodraw_e2')[,1]) ~ "THU", 
+                           !is.na(str_locate(session_id,'photodraw_e2')[,1]) ~ "CDM")) %>%
+  mutate(site = as.factor(site))
+```
+
+### join with classification data -- which has age embedded
+```{r}
+d <- classification_data %>%
+  left_join(all_meta, by=c('category','session_id'))  %>%
+  mutate(age_numeric = as.numeric(str_split_fixed(age,'age',2)[,2])) %>%
+  mutate(age_numeric = replace(age_numeric, age_numeric==10,9)) # two THU participants who are just barely 10-years old, including in 9-year-old group
+
+# subids in d should be a superset of those in classification_data
+check_ids <- classification_data %>%
+  filter(!session_id %in% unique(all_meta$session_id))
+assert_that(length(check_ids$age)==0) # all match up
+  
+```
+
+### get rid of tech error drawings (see note)
+```{r}
+# bizarrely, there are 24 drawing for which stroke data didn't save -- technical error.
+# this was checked directly in mongodb database -- no idea why, assuming bad internet.
+tech_error_drawings <- d %>%
+  filter(is.na(num_strokes))
+# filter out terch error drawings from dataset (24)
+d <- d %>%
+  filter(!is.na(num_strokes)) 
+```
+
+```{r}
+# only did one practice trial, not in subject log or classification data because no category level trials
+missing_id <- CDM_metadata %>%
+  filter(!session_id %in% d$session_id)
+```
+
+## Compile some sanity checks on counts of draiwngs per site/condition/etc
+```{r}
+sanity_counts <- d %>%
+  group_by(condition,age_numeric, site) %>%
+  summarize(num_drawings = n()) %>%
+  kable()
+```
+
+```{r}
+participant_counts <- d %>%
+  group_by(age_numeric, site) %>%
+  summarize(num_participants = length(unique(session_id))) 
+
+count_by_site <- d %>%
+  group_by(site) %>%
+  summarize(num_participants = length(unique(session_id))) 
+
+count_by_category <- d %>%
+  group_by(category) %>%
+  summarize(num_drawings = length(unique(session_id)))
+
+count_by_id <- d %>%
+  group_by(session_id) %>%
+  summarize(num_drawings = length(unique(category))) 
+```
+
+265 participants were recruited from the San Jose Children’s Discovery museum, the Palo Alto Junior Museum and Zoo, and preschool and elementary schools outside of Beijing; approximately equal numbers of participants were recruited in Northern California and the Beijing area. We aimed to recruit approximately 120 children between 4-9 years of age after exclusions (i.e. 20 4-year-olds, 20 5-year-olds, etc.). In the US-based sample, 135 children participated; 6 participants were excluded, (3) for skipping more than 6 trials, and (3) for scribbling three or more times in a row; (6) participants were tested but their data was not recorded due to a technical error, and (2) participants never made it past the practice trials, leading to a final sample of 121 children. In the China based sample, `r count_by_site$num_participants[2]` children participated; an additional 8 participants were tested but their data was not recorded due to a technical error with the remote database. Two 10-year-olds (aged 10 years, 0 months and 10 years, 1 month) were accidentally tested and included in the 9-year-old age group. A complete breakdown of the number of subjects in each age group and site can be found in the Appendix, Table 1A.
+
+Blank drawings were excluded from analysis, and drawings were randomly undersampled to have an equal number of drawings for each leave-one-out-classification. On average, each child contributed `r mean(count_by_id$num_drawings)` to analysis (min `r min(count_by_id$num_drawings)`, max = `r max(count_by_id$num_drawings)`) with leaving 232-234 drawings per category.
+
+
+# Descriptive anlayses
+```{r descriptives-across-age}
+### How do our covariates change with age? Compute means and CIs; Group by age/category
+cor_by_age <- d %>%  
+  group_by(session_id,category,condition,age_numeric, site) %>%
+  summarize(avg_cor = mean(correct_or_not)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_cor") 
+```
+
+
+```{r}
+base_size_chosen=12; smooth_alpha=.2
+ggplot(cor_by_age, aes(age_numeric,mean, col = condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) + 
+  theme_few(base_size = base_size_chosen) + 
+  labs(x='Age', y='Classification accuracy') +
+  ylim(0,1) + 
+  geom_smooth(span=10, alpha=.2) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  facet_grid(~site)
+```
+
+### Correlation of item effects across sites
+```{r}
+item_effects <- d %>%
+  group_by(session_id,age_numeric,category, site) %>%
+  summarize(avg_sub_cor = mean(correct_or_not)) %>%
+  group_by(age_numeric,category, site) %>%
+  summarize(avg_cor = mean(avg_sub_cor)) %>%
+  spread(key=site, value=avg_cor)
+
+  
+ggplot(item_effects, aes(x=CDM, y=THU, color=age_numeric)) +
+  # geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.5)) + 
+  geom_point() + 
+  theme_few(base_size = base_size_chosen) + 
+  # labs(x='Age', y='Classification accuracy') +
+  # scale_color_viridis(option="D") + 
+  # theme(legend.position = "none") + 
+  # geom_smooth(col='grey',span=10, alpha=smooth_alpha) +
+  ylim(0,1) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  facet_wrap(~category)
+```
+
+
+
+
+```{r}
+item_effects_no_age <- d %>%
+  group_by(session_id,category, site) %>%
+  summarize(avg_sub_cor = mean(correct_or_not)) %>%
+  group_by(category, site) %>%
+  summarize(avg_cor = mean(avg_sub_cor)) %>%
+  spread(key=site, value=avg_cor)
+  
+ggplot(item_effects_no_age, aes(x=CDM, y=THU, color=category)) +
+  geom_point() + 
+  theme_few(base_size = base_size_chosen) + 
+  geom_abline(intercept = 0, slope=1)
+```
+
+
+# Inferential stats
+```{r}
+full_model <- glmer(correct_or_not ~ condition*age_numeric+ site +
+                        (1|session_id) +
+                        (1|category),
+      data = d, family="binomial")
+
+summary(full_model)
+
+```
+
+# Witheffort covariates (not ready yet)
+```{r}
+draw_duration <- d %>%
+  group_by(session_id,condition,age_numeric) %>%
+  summarize(avg_draw_duration = mean(draw_duration_new)) %>%
+  group_by(age_numeric,condition) %>%
+  multi_boot_standard(col = "avg_draw_duration")
+
+num_strokes <- d %>%
+  group_by(session_id,condition,age_numeric) %>%
+  summarize(avg_num_strokes = mean(num_strokes)) %>%
+  group_by(age_numeric,condition) %>%
+  multi_boot_standard(col = "avg_num_strokes") 
+
+avg_intensity <- d %>%
+  group_by(session_id,condition,age_numeric) %>%
+  summarize(avg_intensity = mean(mean_intensity)) %>%
+  group_by(age_numeric,condition) %>%
+  multi_boot_standard(col = "avg_intensity")
+
+```
+
+```{r plot-descriptives-across-age}
+## Make compiled plot of descriptives
+base_size_chosen=18 # size of text in plots
+smooth_alpha=.2
+
+cor_by_age_plot_A = ggplot(cor_by_age, aes(age_numeric,mean, color=condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5)) + 
+  theme_few(base_size = base_size_chosen) + 
+  labs(x='Age', y='Classification accuracy') +
+  # scale_color_viridis(option="D") + 
+  theme(legend.position = "none") +
+  # geom_smooth(col='grey',span=10, alpha=smooth_alpha) +
+  # ggtitle('A') + 
+  ylim(0,.75) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey")
+
+p1=ggplot(draw_duration, aes(age_numeric,mean, color=condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5)) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Draw duration (s)') +
+  # scale_color_viridis(option="D") +
+  theme(legend.position = "none") + 
+  ylim(0,20) 
+  # geom_smooth(col='grey', span = 10) +
+  # ggtitle('B')
+
+p2=ggplot(avg_intensity, aes(age_numeric,mean, color=condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5)) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Ink used (mean intensity)') +
+  # scale_color_viridis(option="D") +
+  theme(legend.position = "none") + 
+  ylim(.02,.08) 
+  # geom_smooth(col='grey', span = 10,alpha=smooth_alpha)  +
+  # ggtitle('C')
+
+p3=ggplot(num_strokes, aes(age_numeric,mean, color=condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5)) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Number of strokes') +
+  # scale_color_viridis(option="D") +
+  theme(legend.position = "right") +
+  ylim(0,15) 
+  # geom_smooth(col='grey', span = 10,alpha=smooth_alpha)  +
+  # ggtitle('D')
+        
+# p4=ggplot(tracing_scores, aes(age_numeric,mean, color=age_numeric)) +
+#   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
+#   theme_few(base_size = base_size_chosen) +
+#   labs(x='Age', y='Normalized tracing score') +
+#   # scale_color_viridis(option="D") +
+#   theme(legend.position = "none") + 
+#   geom_smooth(col='grey', span = 10,alpha=smooth_alpha)  +
+#   ggtitle('E')
+```

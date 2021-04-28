@@ -76,7 +76,7 @@ function shuffle_mult() {
 // ######################## Configuration settings ############################
 
 // connect to node.js
-socket = io.connect();
+socket = io.connect('http://localhost:4040');
 
 //set up trials from csv
 $(document).ready(function() {

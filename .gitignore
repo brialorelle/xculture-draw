@@ -6,7 +6,6 @@ analysis/auth_info.txt
 *.DS_Store
 .DS_Store
 .DS_Store
-*.zip
 *.png
 #  ignore old scripts
 analysis/_main_analyses_only_cdm_srcd/*
@@ -72,3 +71,12 @@ data/CDM/drawings/data_3_2020/photodraw2_descriptives/Photodraw2_1619_images_met
 .Rproj.user
 analysis/step1_get_drawings/CDM_Drawings/photodraw2/1_render_all_sketches_photodraw 2.py
 analysis/step1_get_drawings/THU_Drawings/preprocess_sketches 2.Rmd
+experiments/CDM_online_version/code/node_modules/paper/dist/paperjs.zip
+experiments/CDM_online_version/code/node_modules.zip
+experiments/CDM_online_version/code/images_photocues.zip
+experiments/0_photodraw_pilot/recognition_ratings/z-sanity-check/testData.zip
+experiments/0_photodraw_pilot/recognition_ratings/batch1/experiment/images.zip
+experiments/0_photodraw_pilot/code/node_modules/paper/dist/paperjs.zip
+experiments/0_photodraw_pilot/code/node_modules.zip
+experiments/0_photodraw_pilot/code/images.zip
+data/compiled/drawings/object_drawings.zip

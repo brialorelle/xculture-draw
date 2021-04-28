@@ -157,6 +157,7 @@ var experiment = {
         guessed_category: [],
         dbname: 'devphotodraw_recognition',
         colname: 'batched_12afc', 
+        imageName: [],
         trial_type: [],
 		comments: [],
 	},
@@ -194,9 +195,10 @@ var experiment = {
                 imageName: document.getElementById("imagePlaceholder").src,
             }
 
+            $("#recognitionInput").val(""); // clear value
             socket.emit('current_data', trial_data);
             experiment.next();
-            $("#recognitionInput").val(""); // clear value
+        
             
         } else {
             $("#testMessage_att").html('<font color="red">' + 

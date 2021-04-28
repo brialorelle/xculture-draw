@@ -6,7 +6,7 @@ output: html_notebook
 ## Check we have values for all images
 ```{r}
 library(tidyverse)
-current_dir <- "classification-outputs-030719_C_0.1"
+current_dir <- "classification-outputs-092020_C_0.1"
 files <- dir(current_dir)
 indexes = array()
 count=0

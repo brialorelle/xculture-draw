@@ -90,11 +90,11 @@ $.ajax({
             imgArray = new Array();
             //set up image names
             // skip row 0 = headers
-            for (i = 1; i < results.data.length; i++) { 
+            for (i = 1; i < results.data.length-1; i++) { 
                 var imageName= results.data[i][8]; //starts i at 1 to get rid of header
                 var imageCategory=results.data[i][3]
                 imgArray[i] = new Image();
-                imgArray[i].src = ['object_drawings/' + imageName ];
+                imgArray[i].src = ['object_drawings/' + imageName];
                 imgArray[i].name = imageCategory;
             }                 
                

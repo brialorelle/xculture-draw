@@ -1,0 +1,163 @@
+---
+title: "Examine_photodraw_classifications"
+author: "Bria Long"
+date: "4/2021"
+output: html_document
+---
+
+```{r, libraries}
+library(knitr)
+library(tidyverse)
+library(assertthat)
+library(ggthemes)
+library(langcog)
+library(stringr)
+library(here)
+theme_set(theme_few())
+```
+
+# CDM cleaning
+## Get drawing-specific metadata for CDM
+```{r}
+## Load in meta data from mongo-db database dumps
+CDM_metadata <- read.csv(here::here('data/CDM/drawing_metadata/Photodraw2_CDM_AllDescriptives_1922_images_final_CDM_photodraw_e2.csv')) %>%
+  as_tibble() %>%
+  mutate(session_id = str_split_fixed(session_id,"_",2)[,2]) %>%
+  mutate(session_id = as.factor(session_id)) %>%
+  mutate(draw_duration = replace(draw_duration_new, draw_duration_new > 30,30)) %>%
+  rowwise() %>%
+  mutate(filename = str_split_fixed(filename, 'photodraw2_all_sketches/',2)[,2]) %>%
+  mutate(filename = str_split_fixed(filename, '/',2)[,2])  %>%
+  select(subID, session_id, condition, category, num_strokes, draw_duration, mean_intensity, age,filename) %>%
+  mutate(age_numeric =as.numeric(str_split_fixed(age,'age',2)[,2]))
+
+```
+
+## Clean up any subid issues from CDM dataset
+```{r}
+# exclude any subjects that have duplicate IDs
+prac_trials = c('this square','this shape','triangle','rectangle')
+double_sessions <- CDM_metadata %>%
+  distinct(subID,session_id) %>%
+  group_by(subID) %>%
+  summarize(num_sessions = n()) %>%
+  filter(num_sessions > 1)
+
+drawings_by_doubles <-  CDM_metadata %>%
+  filter(subID %in% double_sessions$subID) %>%
+  filter(!category %in% prac_trials) %>%
+  group_by(subID,category) %>%
+  summarize(num_drawings = n()) %>%
+  filter(num_drawings >1) 
+
+# one duplicate ID
+duplicate_sub_id = unique(drawings_by_doubles$subID)
+to_fix <- CDM_metadata %>%
+  filter(subID == duplicate_sub_id) 
+
+unique(to_fix$age) ## two ages here -- age 5 and 7 with the same subID
+
+# To match run sheet: 111418_6 & age7 stays as ID 111418_6
+# To match run sheet: 111418_6 & age5 should instead be 111418_5
+assert_that(sum(CDM_metadata$session_id=="111418_5")==0) # isn't it the database yet, so that's the error
+
+## FIX IT : change subid to character so can replace value; change back to factor to keep tidy
+CDM_metadata <- CDM_metadata %>%
+  mutate(subID = as.character(subID)) %>%
+  mutate(subID=replace(subID, subID=="111418_6" & age=="age5","111418_5")) %>%
+  mutate(subID = as.factor(subID))
+```
+
+## Exclude first sessions from duplicate sessions
+```{r}
+# one subject who had two sessions for the same subid -- exclude the first session
+# this is just a practice trial
+session_to_exclude <- CDM_metadata %>%
+  group_by(subID) %>%
+  mutate(count_sessions = length(unique(session_id))) %>%
+  filter(count_sessions>1) %>%
+  mutate(timestamp = as.numeric(str_split_fixed(session_id, 'photodraw_e2',2)[,2])) %>%
+  mutate(max_timestamp = max(timestamp)) %>%
+  filter(timestamp <  max_timestamp)
+
+# filter this out
+CDM_metadata <- CDM_metadata %>%
+  filter(!session_id %in% session_to_exclude$session_id)  %>%
+  mutate(site = 'CDM')
+
+```
+
+# THU cleaning
+## Now load and clean up THU metadata 
+```{r}
+#Serious headache with extra spaces in database IDs vs subject log IDs (see anlaysis > step1_getdrawings for most of the legwork here)
+
+# from subject logs
+THU_final_subject_info = read_csv(here::here('data/THU/demographics/final_subject_info.csv')) %>%
+  as_tibble() %>%
+  select(ID_Database_raw, ID_Database, Age) %>%
+  mutate(age_numeric = floor(Age)) %>%
+  select(-Age) %>%
+  rowwise() %>%
+  mutate(ID_Database_raw = str_replace_all(ID_Database_raw, fixed(" "), "")) %>%
+  mutate(ID_Database_raw = as.factor(ID_Database_raw)) 
+  # rename(session_id = ID_Database) #session_id = cleaned ID_Database anme for merging with CDM data
+
+# metadata for each drawing
+all_THU_metadata<- read.csv(here::here('data/THU/drawing_metadata/THU_Drawings_AllDescriptives_april2021_all.csv')) %>%
+  select(subid, session_id, condition, category, num_strokes, draw_duration, mean_intensity, filename) %>%
+  rowwise() %>%
+  mutate(ID_Database_raw = str_replace_all(subid, fixed(" "), "")) %>% #subid = ID_Database_raw in this spreadsheet, I know, sorry
+  mutate(ID_Database_raw = as.factor(ID_Database_raw)) 
+
+# joint drawing metadata with subject info
+THU_metadata <-  THU_final_subject_info %>%
+  left_join(all_THU_metadata, by=c("ID_Database_raw")) %>%
+  select(-ID_Database_raw, -subid, - filename) %>%
+  mutate(filename = paste0(condition, '_',category, '_sketch_age',age_numeric, '_', ID_Database,'.png'))   # used to re-save sketches, so should match but can sanity check
+
+# check nothing went wrong with merging....spaces were causing issues
+assert_that(sum(is.na(THU_metadata$num_strokes))==0)
+
+```
+
+## Check for duplicate session_ids in THU_metadata
+```{r}
+thu_session_to_exclude <- THU_metadata %>%
+  group_by(ID_Database) %>%
+  mutate(count_sessions = length(unique(session_id))) %>%
+  filter(count_sessions>1) %>%
+  mutate(timestamp = as.numeric(str_split_fixed(session_id, 'Tsinghua_photodraw_production',2)[,2])) %>%
+  mutate(max_timestamp = max(timestamp)) %>%
+  filter(timestamp <  max_timestamp)
+
+# exclude first sessions, only one with category drawings...assuming that's a real participant, but can't link to subject log so taking second participant
+THU_metadata <- THU_metadata %>%
+  filter(!session_id %in% thu_session_to_exclude$session_id) %>%
+  mutate(site = 'THU')
+ 
+```
+
+
+# Join both sets of metadata together
+```{r}
+all_meta <- CDM_metadata %>%
+  full_join(THU_metadata %>% rename(subID = ID_Database)) %>%
+  mutate(age_numeric = replace(age_numeric,age_numeric==10, 9)) 
+
+# remove some duplicate rows -- had same session, etc. so not worried
+# repeats <- all_meta %>%
+#   group_by(filename) %>%
+#   mutate(count_repeats = n()) %>%
+#   filter(count_repeats>1) %>%
+#   filter(category=='chair') %>%
+#   mutate(same_session = length(unique(session_id)))
+
+all_meta <- unique(all_meta)
+
+```
+
+## And save
+```{r}
+write_csv(all_meta,here::here('data/compiled/metadata/final_merged_metadata.csv'))
+```

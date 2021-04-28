@@ -1,0 +1,124 @@
+---
+title: "Photodraw2-Descriptives"
+author: "Bria Long"
+date: "2/5/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+library(assertthat)
+library(here)
+```
+
+## Do you really want to rerun this?
+```{r}
+## Generally you don't -- this does a lot of copying and filtering based on the dataset preprocessing stage...
+rerun=FALSE
+```
+## Import metadata
+```{r}
+all_meta <- read.csv(file = here::here('data/compiled/metadata/final_merged_metadata.csv')) %>%
+  as_tibble() 
+```
+
+## looked at differences between full set of rendered drawings and cleaned metadata; removed excluded drawings
+```{r}
+
+if (rerun=TRUE){
+  compiled_dataset_path = here::here('data/compiled/drawings/object_drawings')
+  
+  all_rendered_drawings = list.files(path=compiled_dataset_path, pattern = ".png$", recursive = TRUE) %>%
+      as_tibble()  %>%
+      rename(fullPath = value) 
+  
+  prac_trials = c('this square','this shape','triangle','rectangle')
+  object_drawings <- all_meta %>%
+    filter(!category %in% prac_trials) 
+  
+  # either duplicate sessions or no stroke data, see merge_and_clean_datasets.
+  drawings_excluded <- all_drawings %>%
+    filter(!fullPath %in% object_drawings$filename) 
+  
+  ## DO ONCE
+  file.remove(fs::path(compiled_dataset_path, drawings_excluded$fullPath))
+  
+  # should be none
+  drawings_not_rendered <- object_drawings %>%
+    filter(!filename %in% all_drawings$fullPath)
+  
+  assert_that(length(drawings_not_rendered$subID)==0)
+  length(object_drawings$filename)
+  length(all_drawings$fullPath)
+}
+```
+
+
+# copy tracings from included THU children
+```{r}
+if (rerun==TRUE){
+  compiled_tracings_path = here::here('data/compiled/drawings/tracings')
+  tracings_THU = here::here('data/THU/drawings/tracings/')
+  
+  tracings_to_include_THU <- all_meta %>%
+    filter(category %in% c('this square','this shape')) %>%
+    filter(site == "THU")
+  
+  file.copy(fs::path(tracings_THU, tracings_to_include_THU$filename), fs::path(compiled_tracings_path, tracings_to_include_THU$filename))
+}
+```
+
+# copy tracings from included CDM children
+```{r}
+if (rerun==TRUE){
+compiled_tracings_path = here::here('data/compiled/drawings/tracings')
+tracings_CDM = here::here('data/CDM/drawings/tracings/')
+
+tracings_to_include_CDM <- all_meta %>%
+  filter(category %in% c('this square','this shape')) %>%
+  filter(site == "CDM")
+
+file.copy(fs::path(tracings_CDM, tracings_to_include_CDM$filename), fs::path(compiled_tracings_path, tracings_to_include_CDM$filename))
+}
+```
+
+
+# Randomly sample from groups of categories / ages / sites into subsets for different participants
+```{r}
+if (rerun==TRUE){
+sample_set <- object_drawings
+##
+max_iter=21 
+for (iteration in 1:max_iter) {
+    if (iteration==max_iter){
+      # whatever we have left if on last iteration
+      print('last iteration...')
+      print (length(sample_set$filename))
+      write_csv(sample_set,here::here('data/compiled/recognition_rating_chunks/',paste0('chunk_',iteration,'_compiled_dataset.csv')))
+    }
+    # for all the other iterations
+    else if (iteration<max_iter){
+  
+    this_chunk <- sample_set %>%
+      group_by(age_numeric,category, site) %>%
+      slice_sample(n=1, replace=FALSE)
+    
+    assert_that(length(unique(this_chunk$category))==12)
+    assert_that(length(unique(this_chunk$age_numeric))==6)
+    assert_that(length(unique(this_chunk$site))==2)
+    
+    print (length(this_chunk$filename))
+    write_csv(this_chunk,here::here('data/compiled/recognition_rating_chunks/',paste0('chunk_',iteration,'_compiled_dataset.csv')))
+    
+    sample_set <- sample_set %>%
+      filter(!filename %in% this_chunk$filename)
+    
+    # print (length(sample_set$filename))
+    }
+}
+}
+
+```
+

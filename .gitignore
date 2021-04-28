@@ -15,6 +15,14 @@ analysis/1_checksubjects/*\
 analysis/step1_get_drawings/THU_Drawings/1_download_sketches/_old_rendered_drawings/*
 analysis/step1_get_drawings/THU_Drawings/1_download_sketches/.ipynb_checkpoints/*
 analysis/step1_get_drawings/THU_Drawings/1_download_sketches/_dev/*
+# ignore many old subject log archives
+analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/_archived_detailed_logs/*
+
+# ignore classificatinos indivdual files
+analysis/step3_check_classifications/compiled/*
+
+#
+analysis/step3_check_classifications/_old_CDM_Drawings_only/*
 
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.csv
 analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/subject_logs/KIDDRW_THU.xlsx
@@ -48,3 +56,4 @@ analysis/step1_get_drawings/CDM_Drawings/photodraw2/photodraw2_descriptives/Phot
 data/CDM/drawings/data_3_2020/photodraw2_descriptives/Photodraw2_SRCD_cleaned_data_4-8.csv
 data/CDM/drawings/data_3_2020/photodraw2_descriptives/Photodraw2_1619_images_metadata.csv
 .Rproj.user
+analysis/step1_get_drawings/CDM_Drawings/photodraw2/1_render_all_sketches_photodraw 2.py

@@ -155,11 +155,12 @@ var experiment = {
 	data: {
         sub_id: [],
         guessed_category: [],
-        dbname:'devphotodraw_recognition',
+        dbname: 'devphotodraw_recognition',
         colname: 'batched_12afc', 
-        trial_type: [].
+        trial_type: [],
 		comments: [],
 	},
+
 	// end the experiment
 	end: function() {
 		showSlide("finished");

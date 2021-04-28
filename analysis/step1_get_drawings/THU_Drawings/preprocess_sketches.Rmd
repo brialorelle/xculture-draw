@@ -5,9 +5,6 @@ date: "9/2/2020"
 output: html_document
 ---
 
-
-
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
@@ -18,23 +15,28 @@ library(here)
 library(lubridate)
 ```
 
-
+# demographics information for subjects
 ```{r}
 final_subject_info = here::here('data/THU/demographics/final_subject_info.csv')
 demo = read_csv(final_subject_info)
 ```
 
+# paths to drawings and where they should be copied
 ```{r}
 drawing_path = here::here('data/THU/drawings/full_set/')
+# these will contain tracings/drawings from all THU/CDM sessions
+compiled_dataset_path = here::here('data/compiled/drawings/object_drawings')
+compiled_tracing_dataset_path = here::here('data/compiled/drawings/tracings')
+dir.create(compiled_dataset_path)
+dir.create(compiled_tracing_dataset_path)
+
+# old structure
 # filtered_dataset_path =  here::here('data/THU/drawings/filtered_dataset')
 # filtered_dataset_path =  here::here('data/THU/drawings/object_drawings')
-compiled_dataset_path = here::here('data/compiled/drawings/object_drawings')
 # dir.create(filtered_dataset_path)
-dir.create(compiled_dataset_path)
 ```
 
-
-
+# grab pngs of rendered drawings
 ```{r}
 all_drawings = list.files(path=drawing_path, pattern = ".png$", recursive = TRUE) %>%
     as_tibble()  %>%
@@ -57,31 +59,41 @@ drawing_info = all_drawings %>%
 ```
 
 
+# copy tracings/drawings into separate folderes
 ```{r}
 practice_categories = c('triangle','this shape','this square','rectangle')
-
 
 drawings_to_include <- drawing_info %>%
   left_join(demo, by=c('ID_Database')) %>%
   filter(!is.na(Age)) %>%
   mutate(age_group = floor(Age)) %>%
-  mutate(better_filename = paste0(condition, '_',category, '_sketch_age',age_group, '_', ID_Database,'.png'))  %>%
+  mutate(better_filename = paste0(condition, '_',category, '_sketch_age',age_group, '_', ID_Database,'.png'))  
+
+object_drawings <- drawings_to_include %>%
   filter(!category %in% practice_categories)
 
+tracings_to_include <- drawings_to_include %>%
+  filter(category %in% practice_categories)
 ```
 
-# copy included drawings and rename
+# summarize number of drawings/tracings that we had
 ```{r}
-# file.copy(fs::path(drawing_path, drawings_to_include$fullPath), fs::path(filtered_dataset_path, drawings_to_include$better_filename))
+drawings_by_category <- object_drawings %>%
+  group_by(category, condition) %>%
+  summarize(num_drawings = length(fileNameShort))
 
+tracings_by_category <- tracings_to_include %>%
+  group_by(category) %>% 
+  summarize(num_drawings = length(fileNameShort))
+```
+
+# copy included drawings/tracings and rename
+```{r}
 file.copy(fs::path(drawing_path, drawings_to_include$fullPath), fs::path(compiled_dataset_path, drawings_to_include$better_filename))
 ```
 
 ```{r}
-
-drawings_by_category <- drawings_to_include %>%
-  group_by(category, condition) %>%
-  summarize(num_drawings = length(fileNameShort))
-
-
+file.copy(fs::path(drawing_path, tracings_to_include$fullPath), fs::path(compiled_tracing_dataset_path, tracings_to_include$better_filename))
 ```
+
+

@@ -1,0 +1,123 @@
+---
+title: "tsinghua-subids"
+author: "Bria Long"
+date: "1/16/2020"
+output: html_document
+---
+
+```{r, libraries}
+library(png)
+library(grid)
+library(ggplot2)
+library(xtable)
+library(knitr)
+library(tidyverse)
+library(assertthat)
+library(ggthemes)
+library(lme4)
+library(langcog)
+library(viridis)
+library(magick)
+library(stringr)
+library(egg)
+library(here)
+theme_set(theme_few())
+```
+
+
+
+
+## Read in manually matched IDs
+```{r}
+IDs_match <- read_csv('subject_logs/correct_matches.csv') %>%
+  rename(ID_SubjectLog = ID_SubjectLog_cleaned) %>%
+  filter(!is.na(ID_Database_raw)) %>% # 3 subjects for whom we don't have matches at all
+  mutate(ID_Database = str_replace_all(ID_Database_raw,' ','')) %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'-','_'))  %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'__','_')) %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'I','i'))  %>%
+  mutate(ID_Database = str_to_upper(ID_Database))  %>%
+  rowwise() %>%
+  mutate(iPad_Used = str_split(ID_Database,"[_]")[[1]][1],Short_SubID = str_split(ID_Database,"[_]")[[1]][2]) 
+
+```
+
+## Read in Ids from  database
+
+```{r}
+### test ids
+is_test = c('Ipad5',
+'P0000',
+'Test',
+'Test4',
+'Test5','Ipad2_tes3','Ipad1','ipad4_Test1','ipad4_Test1')
+```
+
+```{r}
+IDs_DB <- read_csv('subject_logs/subIDs_afterNov15.csv') %>%
+  rowwise() %>%
+  mutate(is_test = str_detect(subID,'test')) %>%
+  filter(is_test==FALSE) %>%
+  mutate(ID_Database = str_replace_all(subID,' ','')) %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'-','_'))  %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'__','_')) %>%
+  mutate(ID_Database = str_replace_all(ID_Database,'I','i'))  %>%
+  mutate(ID_Database = str_to_upper(ID_Database))  %>%
+  mutate(iPad_Used = str_split(ID_Database,"[_]")[[1]][1],Short_SubID = str_split(ID_Database,"[_]")[[1]][2]) %>%
+  rename(ID_Database_raw = subID)
+```
+
+### Read in IDs from subject log
+```{r}
+# ids in subject log
+IDs_SL <- read_csv('subject_logs/subject_log_sept2020.csv') %>%
+  select(Age, Sex, ID, CB, note,Date) %>%
+  rowwise() %>%
+  mutate(ID_SubjectLog = str_replace_all(ID,' ','')) %>%
+  mutate(ID_SubjectLog = str_replace_all(ID_SubjectLog,'-','_'))  %>%
+  mutate(ID_SubjectLog = str_replace_all(ID_SubjectLog,'__','_')) %>%
+  mutate(ID_SubjectLog = str_replace_all(ID_SubjectLog,'I','i'))  %>%
+  mutate(ID_SubjectLog = str_to_upper(ID_SubjectLog))  %>%
+  mutate(iPad_Used = str_split(ID_SubjectLog,"[_]")[[1]][1],Short_SubID = str_split(ID_SubjectLog,"[_]")[[1]][2]) 
+```
+
+```{r}
+
+# need to use specdal spreadsheet for these subjects
+to_fix <- IDs_SL %>% # get ids from subject log
+  filter(ID_SubjectLog %in% IDs_match$ID_SubjectLog) %>% # get set of subjects in subject log that we had to manually match 
+  left_join(IDs_match %>% select(ID_SubjectLog, ID_Database_raw, ID_Database))  
+```
+```{r}
+# can merge with subject log here
+merged <- IDs_SL %>%
+  filter(!ID_SubjectLog %in% IDs_match$ID_SubjectLog) %>%
+  left_join(IDs_DB, by=c("iPad_Used","Short_SubID")) %>%
+  full_join(to_fix) 
+
+## assumption is didn't record these due to technical eerrors
+mismatch <- merged %>%
+  filter(is.na(ID_Database)) %>%
+  select(-is_test, -note) 
+
+write_csv(mismatch,'no_db_entry_sept2020_tech_errors.csv')
+```
+
+## Save out information
+```{r}
+final_subject_info <-  merged %>%
+  filter(!is.na(ID_Database)) 
+
+write_csv(final_subject_info,here::here('data/THU/demographics/final_subject_info.csv'))
+```
+
+```{r}
+subs_by_age <- final_subject_info %>%
+  mutate(age_group = floor(Age)) %>%
+  group_by(age_group) %>%
+  summarize(count_subs = length(unique(ID_Database)))
+```
+
+
+
+

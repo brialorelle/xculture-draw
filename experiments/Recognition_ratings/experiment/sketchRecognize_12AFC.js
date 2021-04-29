@@ -177,6 +177,7 @@ var experiment = {
         var response_logged = false;
         var input = document.getElementById("recognitionInput");
         var response = input.value;
+        var testing = true
 
         // if there is something in the response, log it
         if (input && response) {
@@ -199,7 +200,12 @@ var experiment = {
             experiment.next();
         
             
-        } else {
+        } else if (testing) {
+            $("#recognitionInput").val(""); // clear value
+            socket.emit('testing')
+            experiment.next();
+        }
+        else{
             $("#testMessage_att").html('<font color="red">' + 
             'Please make a response!' + 
              '</font>');   

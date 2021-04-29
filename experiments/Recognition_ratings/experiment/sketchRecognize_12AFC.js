@@ -186,6 +186,7 @@ var experiment = {
             readable_date = new Date();
             trial_data =  {
                 date: readable_date,
+                version: 'production_batch1',
                 sub_id: trials[0].sub_id,
                 dataType: 'recognition_rating',
                 dbname:'devphotodraw_recognition',

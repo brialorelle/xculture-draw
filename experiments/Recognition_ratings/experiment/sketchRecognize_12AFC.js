@@ -92,9 +92,9 @@ $.ajax({
             for (i = 1; i < results.data.length-1; i++) {  // start at 1 get rid of header, end one row early to avoid empty last row (speciifc to these csvs?)
                 var imageName= results.data[i][8]; 
                 var imageCategory=results.data[i][3]
-                imgArray[i] = new Image();
-                imgArray[i].src = ['object_drawings/' + imageName];
-                imgArray[i].name = imageCategory;
+                imgArray[i-1] = new Image();
+                imgArray[i-1].src = ['object_drawings/' + imageName];
+                imgArray[i-1].name = imageCategory;
             }                       
                
         

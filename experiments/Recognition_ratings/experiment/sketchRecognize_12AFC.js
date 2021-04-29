@@ -166,7 +166,7 @@ var experiment = {
 		showSlide("finished");
 		setTimeout(function() {
             socket.emit('current_data', experiment.data);
-            window.location.href="https://app.prolific.co/submissions/complete?cc=3769E361"
+            window.location.href="https://app.prolific.co/submissions/complete?cc=731A3666"
 		}, 1500);
 	},
 

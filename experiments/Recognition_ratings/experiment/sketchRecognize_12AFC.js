@@ -103,17 +103,18 @@ $.ajax({
 
     try{
         url = window.location.href
-        var this_sub_id = url.substring(url.lastIndexOf('PROLIFIC_PID')+13, url.lastIndexOf('PROLIFIC_PID') + 36);
+        this_sub_id = url.substring(url.lastIndexOf('PROLIFIC_PID')+13, url.lastIndexOf('PROLIFIC_PID') + 36);
         console.log(this_sub_id)
     }
     catch(err){
-        var this_sub_id = random(10000000000)
+        this_sub_id = random(10000000000)
         console.log(this_sub_id)
     }
     
     for (i = 0; i < numTrialsExperiment; i++) {
         trial = {
             thisImageName: imgArray[i].src,
+            thisImageCategory: imgArray[i].name,
             slide: "recognitionRatings",
             sub_id: this_sub_id,
         }
@@ -187,7 +188,7 @@ var experiment = {
             trial_data =  {
                 date: readable_date,
                 version: 'production_batch1',
-                sub_id: trials[0].sub_id,
+                sub_id: this_sub_id,
                 dataType: 'recognition_rating',
                 dbname:'devphotodraw_recognition',
                 colname: 'batched_12afc', 
@@ -235,9 +236,10 @@ var experiment = {
 			}
             // check which trial type you're in and display correct slide
             if (trial_info.slide == "recognitionRatings") {
+                document.getElementById("imagePlaceholder").name = trial_info.thisImageCategory;
                 document.getElementById("imagePlaceholder").src = trial_info.thisImageName;
                 showSlide("recognitionRatings"); //display slide
-                experiment.data.imageName.push(trial_info.thisImageName);
+                
                 }
         experiment.data.trial_type.push(trial_info.slide);
 		}

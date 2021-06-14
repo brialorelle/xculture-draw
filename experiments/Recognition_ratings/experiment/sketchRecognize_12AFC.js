@@ -99,7 +99,7 @@ $.ajax({
                
     
     //global variable 
-    this_version = 'testing_version2'
+    this_version = 'batch1_production_june2021'
     //
     trials = []
     numTrialsExperiment = imgArray.length;    
@@ -114,7 +114,7 @@ $.ajax({
         console.log(this_sub_id)
     }
     
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < numTrialsExperiment; i++) {
         trial = {
             thisImageName: imgArray[i].src,
             thisImageCategory: imgArray[i].name,

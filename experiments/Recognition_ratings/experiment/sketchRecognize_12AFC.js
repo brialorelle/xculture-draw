@@ -111,7 +111,7 @@ $.ajax({
         console.log(this_sub_id)
     }
     
-    for (i = 0; i < numTrialsExperiment; i++) {
+    for (i = 0; i < 10; i++) {
         trial = {
             thisImageName: imgArray[i].src,
             thisImageCategory: imgArray[i].name,

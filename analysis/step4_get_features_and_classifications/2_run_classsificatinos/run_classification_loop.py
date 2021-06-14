@@ -42,7 +42,7 @@ def load_features(cohort, layer_num):
     #  F = np.load('/Users/brialong/Documents/GitHub/kiddraw/analysis/museumstation/feature_space_analyses/features/{}/FEATURES_{}_{}_Spatial_True.npy'.format(DATASET,layers[layer_num],cohort))
     # M = pd.read_csv('/Users/brialong/Documents/GitHub/kiddraw/analysis/museumstation/feature_space_analyses/features/{}/METADATA_{}.csv'.format(DATASET, cohort)) 
     M['joint_site_label'] = M['label'] + M['condition']
-    M = M[['label','age','joint_site_label']]
+    M = M[['label','age','session','joint_site_label']]
     return F, M
 
 def balance_dataset(KF, KM):

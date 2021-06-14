@@ -1,0 +1,66 @@
+---
+title: "Model Prediction"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(groupdata2)
+library(dplyr)
+library(knitr) 
+library(broom) 
+library(hydroGOF)
+library(MASS)
+library(DescTools)
+library(broom)
+library(brms)
+library(reshape2)
+library(caret)
+```
+
+```{r}
+load("vm_model.rda")
+```
+
+```{r}
+# read the orig files
+data_dir = here::here('data')
+# filename = 'kiddraw_tracing_cdm_run_v4.csv'
+
+files = dir(data_dir)
+```
+
+```{r}
+
+count_files = 0
+for (f in files) {
+  count_files = count_files + 1 
+  new_data <- read.csv(fs::path(data_dir,f))
+      # select(-X)
+ 
+  if (count_files == 1) {
+    all_data <- new_data  
+  }
+  
+  if (count_files > 1) {
+  all_data <- all_data %>%
+    full_join(new_data) 
+  }
+}
+```
+
+```{r}
+length(unique(all_data$session_id))
+
+```
+
+
+```{r}
+# predict on new data
+ord.pred = predict(ord_wid, all_data, re_formula = NA)
+ord.pred = data.frame(ord.pred)
+all_data$rating = round(ord.pred$P.Y...1*1 + ord.pred$P.Y...2*2 + ord.pred$P.Y...3*3 + ord.pred$P.Y...4*4)
+write.csv(all_data, paste0("rated_", "all_museumstation_filtered.csv"))
+```
+

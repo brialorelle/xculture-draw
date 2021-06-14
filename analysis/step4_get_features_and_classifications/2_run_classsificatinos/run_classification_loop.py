@@ -41,12 +41,13 @@ def load_features(cohort, layer_num):
     M = pd.read_csv('/home/bria/devphotodraw/data/{}/features/METADATA_{}.csv'.format(DATASET, cohort)) 
     #  F = np.load('/Users/brialong/Documents/GitHub/kiddraw/analysis/museumstation/feature_space_analyses/features/{}/FEATURES_{}_{}_Spatial_True.npy'.format(DATASET,layers[layer_num],cohort))
     # M = pd.read_csv('/Users/brialong/Documents/GitHub/kiddraw/analysis/museumstation/feature_space_analyses/features/{}/METADATA_{}.csv'.format(DATASET, cohort)) 
-    M = M[['label','age','session']]
+    M['joint_site_label'] = M['label'] + M['session']
+    M = M[['label','age','joint_site_label']]
     return F, M
 
 def balance_dataset(KF, KM):
     rus = RandomUnderSampler(random_state=0) ## always have same random under sampling
-    KF_downsampled, class_labels_downsampled = rus.fit_resample(KF, KM['label'].values)
+    KF_downsampled, class_labels_downsampled = rus.fit_resample(KF, KM['joint_site_label'].values) # balance by category (label) and site (condition)
     new_samples_ind = rus.sample_indices_
     KM_downsampled = KM.loc[new_samples_ind]
     X = KF_downsampled

@@ -62,11 +62,12 @@ def get_classifications(test_index):
     out_path_specific = OUT_PATH + "_C_" + str(REGULARIZE_PARAM)
     ### Load features, balance dataset
     KF, KM = load_features('kid',LAYER_IND)
-    X, y, KM_downsampled = balance_dataset(KF,KM)
+    X, y_balanced, KM_downsampled = balance_dataset(KF,KM)
     ## delete test index from test index array from 
     train_indexes = np.asarray(range(0,np.shape(X)[0]))
     train_indexes = np.delete(train_indexes,test_index)
-    ## get train/test indexes    
+    ## get train/test indexes
+    y = np.asarray(KM_downsampled['label'])    
     X_train, X_test = X[train_indexes], X[test_index]
     y_train, y_test = y[train_indexes], y[test_index]
     # run model
@@ -95,7 +96,6 @@ def get_classifications(test_index):
     print 'finished and saving!'
     if not os.path.exists(out_path_specific):
         os.makedirs(out_path_specific)
-    out.to_csv(os.path.join(out_path_specific,'devphotodraw_all_classification_ind_{}.csv'.format(test_index_numeric)))
 
 ################################################################################################################################
 

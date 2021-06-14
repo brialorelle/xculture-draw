@@ -263,7 +263,7 @@ var experiment = {
                 comments:  document.getElementById("comments").value,
             }
 
-        socket.emit('final_comments', comments_data);
+        socket.emit('current_data', comments_data);
         experiment.end();
     }
 }

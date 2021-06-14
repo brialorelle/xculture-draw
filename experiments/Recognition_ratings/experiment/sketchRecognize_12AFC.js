@@ -97,7 +97,10 @@ $.ajax({
                 imgArray[i-1].name = imageCategory;
             }                       
                
-        
+    
+    //global variable 
+    this_version = 'testing_version2'
+    //
     trials = []
     numTrialsExperiment = imgArray.length;    
 
@@ -111,7 +114,7 @@ $.ajax({
         console.log(this_sub_id)
     }
     
-    for (i = 0; i < 10; i++) {
+    for (i = 0; i < 2; i++) {
         trial = {
             thisImageName: imgArray[i].src,
             thisImageCategory: imgArray[i].name,
@@ -187,7 +190,7 @@ var experiment = {
             readable_date = new Date();
             trial_data =  {
                 date: readable_date,
-                version: 'production_batch1',
+                version: this_version,
                 sub_id: this_sub_id,
                 dataType: 'recognition_rating',
                 dbname:'devphotodraw_recognition',
@@ -252,7 +255,17 @@ var experiment = {
 
 // submitcomments function
     submit_comments: function() {
-        experiment.data.comments.push(document.getElementById("comments").value);
+        trial_data =  {
+                date: readable_date,
+                version: this_version,
+                sub_id: this_sub_id,
+                dataType: 'comments',
+                dbname:'devphotodraw_recognition',
+                colname: 'batched_12afc', 
+                comments:  document.getElementById("comments").value,
+            }
+
+        socket.emit('final_comments', trial_data);
         experiment.end();
     }
 }

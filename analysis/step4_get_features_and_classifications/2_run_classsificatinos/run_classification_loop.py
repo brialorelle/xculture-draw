@@ -41,7 +41,7 @@ def load_features(cohort, layer_num):
     M = pd.read_csv('/home/bria/devphotodraw/data/{}/features/METADATA_{}.csv'.format(DATASET, cohort)) 
     #  F = np.load('/Users/brialong/Documents/GitHub/kiddraw/analysis/museumstation/feature_space_analyses/features/{}/FEATURES_{}_{}_Spatial_True.npy'.format(DATASET,layers[layer_num],cohort))
     # M = pd.read_csv('/Users/brialong/Documents/GitHub/kiddraw/analysis/museumstation/feature_space_analyses/features/{}/METADATA_{}.csv'.format(DATASET, cohort)) 
-    M['joint_site_label'] = M['label'] + M['session']
+    M['joint_site_label'] = M['label'] + M['condition']
     M = M[['label','age','joint_site_label']]
     return F, M
 
@@ -102,7 +102,7 @@ def get_classifications(test_index):
 #### SPECIFY PARAMETERS
 DATASET = 'photodraw_compiled' ## no features yet
 LAYER_IND = 6
-OUT_PATH = 'classification-outputs-092020'
+OUT_PATH = 'classification-outputs-062021'
 REGULARIZE_PARAM = .1
 
 # start clock

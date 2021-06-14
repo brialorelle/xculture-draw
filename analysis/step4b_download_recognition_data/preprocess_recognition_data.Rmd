@@ -1,0 +1,45 @@
+---
+title: "preprocess_human_recognition"
+author: "Bria Long"
+date: "6/14/2021"
+output: html_document
+---
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+d <- read.csv("csv_out/Devphotodraw_recognition_pilot.csv") %>%
+  as.tibble() %>%
+  mutate(image_name_short = str_split_fixed(imageName,'object_drawings/',2)[,2]) %>%
+  mutate(age_temp = str_split_fixed(image_name_short,'age',2)[,2]) %>%
+  mutate(age = as.numeric(str_split_fixed(age_temp,'_',2)[,1]))
+```
+
+
+# filter out participants who don't finish
+```{r}
+included_subs <- d %>%
+  group_by(subID) %>%
+  summarize(num_drawings = length(unique(image_name_short))) %>%
+  filter(num_drawings > 140)
+
+used_all_options <- d %>%
+  group_by(subID) %>%
+  summarize(num_labels = length(unique(guessed_category)))
+
+d <- d %>%
+  filter(subID %in% included_subs$subID)
+```
+
+# quick check by age
+```{r}
+check_by_age <- d %>%
+  group_by(age) %>%
+  summarize(mean(guessed_category == drawn_category))
+```

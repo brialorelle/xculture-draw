@@ -167,8 +167,13 @@ class FeatureExtractor():
             if self.dataset=='rendered_111918':
                 label = path.split('/')[-1].split('_')[0]
             elif self.dataset=='photodraw_compiled':
-                label = path.split('/')[-1].split('_')[1]   
-                condition = path.split('/')[-1].split('_')[0]
+                label = path.split('/')[-1].split('_')[1]
+                if path.find('CDM')!=-1:
+                    site = 'CDM'
+                else:
+                    site = 'THU'   
+                # condition = path.split('/')[-1].split('_')[0]
+                condition = site
             else:
                 label = path.split('/')[-2]   
 

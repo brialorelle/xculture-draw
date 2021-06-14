@@ -169,7 +169,7 @@ var experiment = {
 	end: function() {
 		showSlide("finished");
 		setTimeout(function() {
-ex            window.location.href="https://app.prolific.co/submissions/complete?cc=731A3666"
+            window.location.href="https://app.prolific.co/submissions/complete?cc=731A3666"
 		}, 1500);
 	},
 

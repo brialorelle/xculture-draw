@@ -1,5 +1,5 @@
 ---
-title: "Model Prediction"
+title: "Use previously fit model to predict tracing scores"
 output: html_document
 ---
 
@@ -17,42 +17,25 @@ library(broom)
 library(brms)
 library(reshape2)
 library(caret)
+library(here)
 ```
 
+# Load model
 ```{r}
 load("vm_model.rda")
 ```
 
+# Read in tracing scores from airlab
 ```{r}
 # read the orig files
-data_dir = here::here('data')
-# filename = 'kiddraw_tracing_cdm_run_v4.csv'
-
-files = dir(data_dir)
-```
-
-```{r}
-
-count_files = 0
-for (f in files) {
-  count_files = count_files + 1 
-  new_data <- read.csv(fs::path(data_dir,f))
-      # select(-X)
- 
-  if (count_files == 1) {
-    all_data <- new_data  
-  }
-  
-  if (count_files > 1) {
-  all_data <- all_data %>%
-    full_join(new_data) 
-  }
-}
+all_data = read.csv(here::here('data/compiled/tracing_outputs/devphotodraw_tracing_all_tracings.csv')) %>%
+  as_tibble() %>%
+  mutate(site = str_split_fixed(filename,'_',4)[,1]) %>%
+  mutate(session_id = str_split_fixed(filename,'_',4)[,3])
 ```
 
 ```{r}
 length(unique(all_data$session_id))
-
 ```
 
 
@@ -61,6 +44,6 @@ length(unique(all_data$session_id))
 ord.pred = predict(ord_wid, all_data, re_formula = NA)
 ord.pred = data.frame(ord.pred)
 all_data$rating = round(ord.pred$P.Y...1*1 + ord.pred$P.Y...2*2 + ord.pred$P.Y...3*3 + ord.pred$P.Y...4*4)
-write.csv(all_data, paste0("rated_", "all_museumstation_filtered.csv"))
+write.csv(all_data, here::here('data/compiled/tracing_outputs/transformed_tracings.csv')) 
 ```
 

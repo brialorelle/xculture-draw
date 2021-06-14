@@ -169,8 +169,7 @@ var experiment = {
 	end: function() {
 		showSlide("finished");
 		setTimeout(function() {
-            socket.emit('current_data', experiment.data);
-            window.location.href="https://app.prolific.co/submissions/complete?cc=731A3666"
+ex            window.location.href="https://app.prolific.co/submissions/complete?cc=731A3666"
 		}, 1500);
 	},
 
@@ -244,7 +243,6 @@ var experiment = {
                 showSlide("recognitionRatings"); //display slide
                 
                 }
-        experiment.data.trial_type.push(trial_info.slide);
 		}
 	},
 
@@ -255,7 +253,7 @@ var experiment = {
 
 // submitcomments function
     submit_comments: function() {
-        trial_data =  {
+        comments_data =  {
                 date: readable_date,
                 version: this_version,
                 sub_id: this_sub_id,
@@ -265,7 +263,7 @@ var experiment = {
                 comments:  document.getElementById("comments").value,
             }
 
-        socket.emit('final_comments', trial_data);
+        socket.emit('final_comments', comments_data);
         experiment.end();
     }
 }

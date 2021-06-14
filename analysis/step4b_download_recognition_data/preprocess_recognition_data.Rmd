@@ -13,9 +13,19 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
+# compile all output csvs
 ```{r}
-d <- read.csv("csv_out/Devphotodraw_recognition_pilot.csv") %>%
-  as.tibble() %>%
+all_data=as_tibble()
+for (batch in range(1,2)){
+  this_batch = read.csv(paste0("csv_out/Devphotodraw_recognition_batch",batch,".csv")) %>% as_tibble() 
+  all_data <- rbind(all_data, this_batch)
+}
+
+```
+
+# preprocess image name / age
+```{r}
+d <- all_data %>%
   mutate(image_name_short = str_split_fixed(imageName,'object_drawings/',2)[,2]) %>%
   mutate(age_temp = str_split_fixed(image_name_short,'age',2)[,2]) %>%
   mutate(age = as.numeric(str_split_fixed(age_temp,'_',2)[,1]))

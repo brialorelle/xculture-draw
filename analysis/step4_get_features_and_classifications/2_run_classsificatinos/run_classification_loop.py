@@ -96,6 +96,7 @@ def get_classifications(test_index):
     print 'finished and saving!'
     if not os.path.exists(out_path_specific):
         os.makedirs(out_path_specific)
+    out.to_csv(os.path.join(out_path_specific,'devphotodraw_classification_ind_{}.csv'.format(test_index_numeric)))
 
 ################################################################################################################################
 

@@ -114,7 +114,7 @@ $.ajax({
         console.log(this_sub_id)
     }
     
-    for (i = 0; i < numTrialsExperiment; i++) {
+    for (i = 0; i < 3; i++) {
         trial = {
             thisImageName: imgArray[i].src,
             thisImageCategory: imgArray[i].name,
@@ -268,9 +268,9 @@ var experiment = {
 
         socket.emit('current_data', comments_data);
         experiment.end();
-    }
+    },
 
-    submit_catch: function(){
+    submit_catch: function() {
         var input = document.getElementById("catch");
         var response = input.value;
 
@@ -291,7 +291,7 @@ var experiment = {
         experiment.debriefing();
         }
         else {
-        $("#testMessage_att").html('<font color="red">' + 'Please make a response!' + '</font>');      
+            $("#testMessage_att").html('<font color="red">' + 'Please make a response!' + '</font>');      
         }
     }
 }

@@ -83,7 +83,7 @@ $(document).ready(function() {
 
 $.ajax({
         type: "GET",
-        url: "recognition_rating_chunks/chunk_4_compiled_dataset.csv",
+        url: "recognition_rating_chunks/chunk_5_compiled_dataset.csv",
         dataType: "text",
         success: function(data) {
             results = Papa.parse(data);
@@ -99,7 +99,7 @@ $.ajax({
                
     
     //global variable 
-    this_version = 'batch4_production_june2021'
+    this_version = 'batch5_production_june2021'
     //
     trials = []
     numTrialsExperiment = imgArray.length;    
@@ -114,7 +114,7 @@ $.ajax({
         console.log(this_sub_id)
     }
     
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < numTrialsExperiment; i++) {
         trial = {
             thisImageName: imgArray[i].src,
             thisImageCategory: imgArray[i].name,

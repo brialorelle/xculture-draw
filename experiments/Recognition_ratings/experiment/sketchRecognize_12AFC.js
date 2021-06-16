@@ -234,19 +234,22 @@ var experiment = {
 			//If the current trial is undefined, call the end function.
 
 			if (typeof trial_info == "undefined") {
-				return experiment.debriefing();
+				return experiment.catch();
 			}
             // check which trial type you're in and display correct slide
             if (trial_info.slide == "recognitionRatings") {
                 document.getElementById("imagePlaceholder").name = trial_info.thisImageCategory;
                 document.getElementById("imagePlaceholder").src = trial_info.thisImageName;
                 showSlide("recognitionRatings"); //display slide
-                
                 }
 		}
 	},
 
 	//	go to debriefing slide
+    catch: function() {
+        showSlide("catch_trial");
+    },
+
     debriefing: function() {
         showSlide("debriefing");
     },
@@ -265,6 +268,31 @@ var experiment = {
 
         socket.emit('current_data', comments_data);
         experiment.end();
+    }
+
+    submit_catch: function(){
+        var input = document.getElementById("catch");
+        var response = input.value;
+
+        // if there is something in the response, log it
+        if (input && response) {
+
+            catch_data =  {
+                date: readable_date,
+                version: this_version,
+                sub_id: this_sub_id,
+                dataType: 'catch_trial',
+                dbname:'devphotodraw_recognition',
+                colname: 'batched_12afc', 
+                catch:  response,
+            }
+
+        socket.emit('current_data', catch_data);
+        experiment.debriefing();
+        }
+        else {
+        $("#testMessage_att").html('<font color="red">' + 'Please make a response!' + '</font>');      
+        }
     }
 }
 

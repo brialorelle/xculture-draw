@@ -9,16 +9,22 @@ output: html_document
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 library(tidyverse)
+library(here)
 ```
 
 # compile all output csvs
 ```{r}
-all_data=as_tibble()
-for (batch in range(1,2)){
-  this_batch = read.csv(paste0("csv_out/Devphotodraw_recognition_batch",batch,".csv")) %>% as_tibble() 
-  all_data <- rbind(all_data, this_batch)
+for (batch in 1:4){
+  this_batch = read.csv(paste0("csv_out/",'batch',  batch, '_production_june2021.csv')) 
+  if (batch==1) {
+    all_data = this_batch
+  }
+  else {
+    all_data <- all_data %>%
+      full_join(this_batch)
+  }
 }
 
 ```
@@ -39,17 +45,43 @@ included_subs <- d %>%
   summarize(num_drawings = length(unique(image_name_short))) %>%
   filter(num_drawings > 140)
 
-used_all_options <- d %>%
-  group_by(subID) %>%
-  summarize(num_labels = length(unique(guessed_category)))
+# used_all_options <- d %>%
+#   group_by(subID) %>%
+#   summarize(num_labels = length(unique(guessed_category))) %>%
+#   filter(num_labels==12)
 
 d <- d %>%
-  filter(subID %in% included_subs$subID)
+  filter(subID %in% included_subs$subID) 
+  # filter(subID %in% used_all_options$subID)
 ```
 
-# quick check by age
+# Preprocess recognition data for merging with classificatinos, etc
 ```{r}
-check_by_age <- d %>%
-  group_by(age) %>%
-  summarize(mean(guessed_category == drawn_category))
+humans <- d %>%
+  rename(category = drawn_category) %>%
+  # get site and unique ids from filenanme
+  mutate(unique_ids = str_split_fixed(imageName, '_',6)[,6]) %>%
+  mutate(unique_ids = str_split_fixed(unique_ids, '.png',2)[,1]) %>%
+  mutate(site = case_when( is.na(str_locate(unique_ids,'photodraw_e2')[,1]) ~ "THU", 
+                           !is.na(str_locate(unique_ids,'photodraw_e2')[,1]) ~ "CDM")) %>%
+  mutate(unique_ids = case_when(site == "CDM" ~ str_split_fixed(unique_ids, '_',2)[,2],
+                                site == "THU" ~ unique_ids)) %>%
+  mutate(guessed_category = as.character(guessed_category)) %>%
+  # clean up two guesses that somehow overrode drop down menU?
+  mutate(guessed_category = case_when(guessed_category == "carn" ~ "car",
+                                guessed_category == "hatb" ~ "hat",
+                                TRUE ~ guessed_category)) %>%
+  # make factors
+  mutate(guessed_category = as.factor(guessed_category)) %>%
+  mutate(unique_ids = as.factor(unique_ids)) %>%
+  # calculate whether a guess was correct or not
+  mutate(correct_or_not = guessed_category == category) %>%
+  select(-subID)
+
+```
+
+
+
+```{r}
+write.csv(humans, here::here('data/compiled/recognition_ratings/compiled_data_test.csv'))
 ```

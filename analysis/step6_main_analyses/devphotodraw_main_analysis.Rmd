@@ -2,7 +2,10 @@
 title: "Devphotodraw_main_anlayses"
 author: "Bria Long"
 date: "6/16/2021"
-output: html_document
+output:
+  html_document:
+    toc: true
+    theme: united
 ---
 # Preprocessing
 ## Load libraries
@@ -171,6 +174,20 @@ ggplot(humans_merged, aes(x=correct_or_not, y=num_correct)) +
   theme_few()
 ```
 
+```{r}
+by_category <- humans_merged %>%
+  group_by(category) %>%
+  summarize(humans_pc = mean(num_correct), model_pc = mean(correct_or_not, na.rm=TRUE))
+
+ggplot(by_category, aes(x=model_pc, y=humans_pc, label=category)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  ylab('human recognition') +
+  xlab('model recognition') +
+  theme_few() +
+  ggrepel::geom_label_repel()
+```
+
 ### Correlates humans vs vgg classifications 
 ```{r}
 cor.test(humans_merged$num_correct, humans_merged$target_label_prob)
@@ -333,7 +350,7 @@ full_model <- glmer(correct_or_not ~ condition*scale(age_numeric)*site +
 summary(full_model)
 ```
 
-## Remove 3-way interaction
+### Remove 3-way interaction
 No interactions with site are significant, removing from main effects structure
 When 3 way interaction is removed, still can't add back more random slopes.
 ```{r}
@@ -352,9 +369,44 @@ ANOVA suggests that these two models -- with/without 3-way int -- explain equal 
 anova(full_model, full_model_no_int)
 ```
 
+
+### Add back site*condition
 ```{r}
-summary(full_model_no_int)
+with_site_condition <- glmer(correct_or_not ~ condition*scale(age_numeric)+condition*site +
+                        (1 | unique_ids) +
+                        (condition*scale(age_numeric) | category),
+      data = d, family="binomial", control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+summary(with_site_condition)
+
 ```
+
+
+
+### Add back age*site
+```{r}
+with_age_site <- glmer(correct_or_not ~ condition*scale(age_numeric)+scale(age_numeric)*site +
+                        (1 | unique_ids) +
+                        (condition*scale(age_numeric) | category),
+      data = d, family="binomial", control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+summary(with_age_site)
+
+```
+
+
+## Add back both
+```{r}
+
+with_site_condition_and_site_age <- glmer(correct_or_not ~ condition*scale(age_numeric)+condition*site+scale(age_numeric)*site+
+                        (1 | unique_ids) +
+                        (condition*scale(age_numeric) | category),
+      data = d, family="binomial", control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+summary(with_site_condition_and_site_age)
+```
+
+
 
 
 ## Add in effort/tracing covariates — does effort mediate any of the differences we're seeing? Not really. Still see same main effects structure.

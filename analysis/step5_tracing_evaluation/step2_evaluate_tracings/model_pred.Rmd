@@ -38,12 +38,17 @@ all_data = read.csv(here::here('data/compiled/tracing_outputs/devphotodraw_traci
 length(unique(all_data$session_id))
 ```
 
-
 ```{r}
 # predict on new data
 ord.pred = predict(ord_wid, all_data, re_formula = NA)
 ord.pred = data.frame(ord.pred)
 all_data$rating = round(ord.pred$P.Y...1*1 + ord.pred$P.Y...2*2 + ord.pred$P.Y...3*3 + ord.pred$P.Y...4*4)
 write.csv(all_data, here::here('data/compiled/tracing_outputs/transformed_tracings.csv')) 
+```
+
+```{r}
+check_by_age <- all_data %>%
+  group_by(site) %>%
+  summarize(mean_tracing = mean(rating))
 ```
 

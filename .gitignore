@@ -26,7 +26,7 @@ analysis/step1_get_drawings/THU_Drawings/2_subject_log_checks/_archived_detailed
 
 # ignore classificatinos indivdual files
 analysis/step3_check_classifications/compiled/*
-
+data/compiled/classification-outputs-062021_C_0.1/* 
 #
 analysis/step3_check_classifications/_old_CDM_Drawings_only/*
 
@@ -85,3 +85,11 @@ analysis/step5_tracing_evaluation/step1_render_highres_tracings/.ipynb_checkpoin
 analysis/step5_tracing_evaluation/step1_render_highres_tracings/.ipynb_checkpoints/pull_tracing_svg_400x400-checkpoint.ipynb
 analysis/step4b_download_recognition_data/csv_out/Devphotodraw_recognition_pilot.csv
 analysis/step5_tracing_evaluation/step1_render_highres_tracings/.ipynb_checkpoints/thu_couchdb_pull_tracing_svg_400x400-checkpoint.ipynb
+analysis/step5_tracing_evaluation/step2_evaluate_tracings/rated_all_museumstation_filtered.csv
+data/compiled/tracing_outputs/devphotodraw_tracing_all_tracings.csv
+analysis/step4b_download_recognition_data/csv_out/batch1_production_june2021.csv
+analysis/step4b_download_recognition_data/csv_out/batch2_production_june2021.csv
+analysis/step4b_download_recognition_data/csv_out/batch3_production_june2021.csv
+analysis/step4b_download_recognition_data/csv_out/batch4_production_june2021.csv
+data/compiled/compiled_classifications/Classification_Outputs2161.csv
+analysis/step4_get_features_and_classifications/2_run_classsificatinos/count_classification_outputs.nb.html

@@ -6,8 +6,14 @@ output: html_notebook
 ## Check we have values for all images
 ```{r}
 library(tidyverse)
-current_dir <- "classification-outputs-092020_C_0.1"
-files <- dir(current_dir)
+library(here)
+
+```
+
+```{r}
+current_dir <- here::here("data/compiled/classification-outputs-062021_C_0.1/")
+
+files = dir(current_dir)
 indexes = array()
 count=0
 for (f in files){
@@ -47,6 +53,6 @@ for (f in files){
 
 
 ```{r}
-write.csv(all_data, paste0('compiled_classifications/Classification_Outputs',count,'.csv'))
+write.csv(all_data, here::here("data/compiled/", paste0('compiled_classifications/Classification_Outputs',count,'.csv')))
 
 ```

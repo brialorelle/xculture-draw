@@ -1,0 +1,381 @@
+---
+title: "Devphotodraw_main_anlayses"
+author: "Bria Long"
+date: "6/16/2021"
+output: html_document
+---
+# Preprocessing
+## Load libraries
+```{r}
+library(tidyverse)
+library(here)
+library(assertthat)
+library(langcog)
+library(ggthemes)
+library(knitr)
+library(lmerTest)
+library(lme4)
+
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Load data
+### Compiled classification data
+```{r load-classifications}
+classification_data <- read.csv(here::here('data/compiled/compiled_classifications/Classification_Outputs2760.csv')) %>%
+  as_tibble() %>%
+  mutate(age_numeric = age) %>%
+  mutate(age = paste('age',age,sep="")) %>%
+  mutate(age = as.factor(age)) %>%
+  mutate(category = target_label) %>% 
+  dplyr::select(-X, -X.1, -index) %>%
+  mutate(site = case_when( is.na(str_locate(session_id,'photodraw_e2')[,1]) ~ "THU", 
+                           !is.na(str_locate(session_id,'photodraw_e2')[,1]) ~ "CDM")) %>%
+  mutate(site = as.factor(site)) 
+```
+
+### Load metadata
+```{r}
+# load and clean up "category" for tracing trials
+all_meta <- read.csv(here::here('data/compiled/metadata/final_merged_metadata.csv')) %>%
+    mutate(category = as.character(category)) %>%
+    mutate(category = case_when(category == 'this square' ~ 'square',
+                                category == 'this shape' ~ 'shape',                                
+                                TRUE ~ as.character(category))) 
+
+# subIDs are unique identifier in recognition data for THU, session_ids in CDM data
+meta_thu <- all_meta %>%
+  filter(site=='THU') %>%
+  mutate(unique_ids = subID) %>%
+  mutate(draw_duration = draw_duration / 1000) # in ms for thu, whoops
+
+meta_cdm <- all_meta %>%
+  filter(site=='CDM') %>%
+  mutate(unique_ids = session_id) 
+
+## unique IDs are now the identifier which will be used to join with machine/human recognition data
+all_meta_cleaned <- meta_cdm %>%
+  full_join(meta_thu) 
+```
+
+### Load tracing data, clean, and avg across participants
+```{r}
+# import, standardized spliced session_ids, and join back together
+# tracing IDs are read in by session_ids, so need these to join with metadata
+tracing_thu <- read.csv(here::here('data/compiled/tracing_outputs/transformed_tracings.csv'))  %>%
+  mutate(session_id =  paste0('Tsinghua_photodraw_',session_id)) %>%
+  filter(site=='Tsinghua') %>%
+  left_join(meta_thu, by=c('session_id','category')) %>%
+  dplyr::select(-X.1, -X, -site.x, -filename.y) %>%
+  rename(site = site.y, filename = filename.x) 
+
+tracing_cdm <- read.csv(here::here('data/compiled/tracing_outputs/transformed_tracings.csv'))  %>%
+  filter(site=='CDM') %>%
+  mutate(session_id = paste0('photodraw_',session_id)) %>%
+  left_join(meta_cdm, by=c('session_id','category')) %>%
+  dplyr::select(-X.1, -X, -site.x, -filename.y) %>%
+  rename(site = site.y, filename = filename.x) 
+  
+# for modeling tracing scores for each shape (square/shape) separately for each participant
+all_tracing <- tracing_thu %>%
+  full_join(tracing_cdm) 
+
+# for per-subject tracing estimates
+tracing_by_sub <- all_tracing %>%
+  group_by(unique_ids) %>%
+  summarize(avg_tracing_score = mean(rating))
+
+
+
+```
+
+### Join meta/tracing with classification data 
+```{r}
+d <- classification_data %>%
+  mutate(unique_ids = session_id) %>%
+  left_join(all_meta_cleaned %>% dplyr::select(unique_ids, category, condition, num_strokes, draw_duration, mean_intensity)) %>% # need to select columns so we don't get join errors 
+  left_join(tracing_by_sub) %>%
+  mutate(age_numeric = as.double(age_numeric)) %>%
+  mutate(age_numeric = case_when(age_numeric == 10 ~ 9, # merge 2 10-year-olds into THU data for 9-year-olds
+                                 TRUE ~ age_numeric))
+
+```
+
+### Load human classification data
+```{r}
+humans <- read.csv(here::here('data/compiled/recognition_ratings/compiled_data_test.csv')) 
+  
+humans_merged <- humans %>%
+  group_by(unique_ids, category) %>% # group by each drawing of each category
+  summarize(num_correct = mean(correct_or_not)) %>%
+  left_join(d, by=c('unique_ids','category')) # join with classification data
+  
+```
+
+### Clean up: Get rid of tech error drawings (see note)
+```{r}
+# bizarrely, there are a few drawings from THU for which stroke data didn't save -- technical error.
+# this was checked directly in mongodb database -- no idea why, assuming bad internet.
+tech_error_drawings <- d %>%
+  filter(is.na(num_strokes))
+# filter out tech error drawings from dataset (24)
+d <- d %>%
+  filter(!is.na(num_strokes)) 
+```
+
+```{r}
+# this sub did one practice trial, not in subject log or classification data because no category level trials
+# missing_id <- meta_cdm %>%
+#   filter(!unique_ids %in% d$unique_ids)
+```
+
+### Sannity checks on counts of draiwngs per site/condition/etc
+```{r}
+sanity_counts <- d %>%
+  group_by(condition,age_numeric, site) %>%
+  summarize(num_drawings = n()) %>%
+  kable()
+```
+
+```{r}
+participant_counts <- d %>%
+  group_by(age_numeric, site) %>%
+  summarize(num_participants = length(unique(session_id))) 
+
+count_by_site <- d %>%
+  group_by(site) %>%
+  summarize(num_participants = length(unique(session_id))) 
+
+count_by_category <- d %>%
+  group_by(category) %>%
+  summarize(num_drawings = length(unique(session_id)))
+
+count_by_id <- d %>%
+  group_by(session_id) %>%
+  summarize(num_drawings = length(unique(category))) 
+```
+
+265 participants were recruited from the San Jose Children’s Discovery museum, the Palo Alto Junior Museum and Zoo, and preschool and elementary schools outside of Beijing; approximately equal numbers of participants were recruited in Northern California and the Beijing area. We aimed to recruit approximately 120 children between 4-9 years of age after exclusions (i.e. 20 4-year-olds, 20 5-year-olds, etc.). In the US-based sample, 135 children participated; 6 participants were excluded, (3) for skipping more than 6 trials, and (3) for scribbling three or more times in a row; (6) participants were tested but their data was not recorded due to a technical error, and (2) participants never made it past the practice trials, leading to a final sample of 121 children. In the China based sample, `r count_by_site$num_participants[2]` children participated; an additional 8 participants were tested but their data was not recorded due to a technical error with the remote database. Two 10-year-olds (aged 10 years, 0 months and 10 years, 1 month) were accidentally tested and included in the 9-year-old age group. A complete breakdown of the number of subjects in each age group and site can be found in the Appendix, Table 1A.
+
+Blank drawings were excluded from analysis, and drawings were randomly undersampled to have an equal number of drawings for each leave-one-out-classification. On average, each child contributed `r mean(count_by_id$num_drawings)` to analysis (min `r min(count_by_id$num_drawings)`, max = `r max(count_by_id$num_drawings)`).
+
+
+# Descriptive anlayses
+## Plot avg human vs. vgg classification
+```{r}
+ggplot(humans_merged, aes(x=correct_or_not, y=num_correct)) +
+  geom_jitter(alpha=.2, width=.1, height=.1) +
+  geom_smooth(method='lm') +
+  ylab('human recognition') +
+  xlab('model recognition')+
+  theme_few()
+```
+
+### Correlates humans vs vgg classifications 
+```{r}
+cor.test(humans_merged$num_correct, humans_merged$target_label_prob)
+cor.test(humans_merged$num_correct, humans_merged$correct_or_not)
+```
+
+## Main descriptive anlayses 
+### Compute accuracy by age, condition, site 
+```{r descriptives-across-age}
+cor_by_age_by_site_by_cond <- d %>%  
+  group_by(session_id,category,condition,age_numeric, site) %>%
+  summarize(avg_cor = mean(correct_or_not)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_cor") 
+```
+ 
+### Plot accuracy by age, condition, site 
+```{r}
+base_size_chosen=12; smooth_alpha=.2
+ggplot(cor_by_age_by_site_by_cond, aes(age_numeric,mean, col = condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) + 
+  theme_few(base_size = base_size_chosen) + 
+  labs(x='Age', y='Classification accuracy') +
+  ylim(0,1) + 
+  geom_smooth(span=10, alpha=.2) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  facet_grid(~site)
+```
+### Compute effort/tracing by age, condition, site 
+```{r}
+draw_duration <- d %>%
+  group_by(unique_ids,condition,age_numeric, site) %>%
+  summarize(avg_draw_duration = mean(draw_duration)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_draw_duration")
+
+num_strokes <- d %>%
+  group_by(unique_ids,condition,age_numeric,site) %>%
+  summarize(avg_num_strokes = mean(num_strokes)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_num_strokes") 
+
+avg_intensity <- d %>%
+  group_by(unique_ids,condition,age_numeric,site) %>%
+  summarize(avg_intensity = mean(mean_intensity)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_intensity")
+
+
+tracing_scores <- d %>%
+  distinct(avg_tracing_score, unique_ids, site, age_numeric) %>%
+  group_by(age_numeric, site) %>%
+  multi_boot_standard(col = "avg_tracing_score")
+
+```
+
+### Plot effort/tracing by age, condition, site 
+```{r plot-descriptives-across-age}
+## Make compiled plot of descriptives
+base_size_chosen=18 # size of text in plots
+smooth_alpha=.2
+
+
+p1=ggplot(draw_duration, aes(age_numeric,mean, color=condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5)) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Draw duration (s)') +
+  theme(legend.position = "right") + 
+  ylim(0,30) +
+  facet_grid(~site)
+
+p2=ggplot(avg_intensity, aes(age_numeric,mean, color=condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5)) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Ink used (mean intensity)') +
+  theme(legend.position = "right") + 
+  ylim(.02,.08) +
+  facet_grid(~site)
+
+p3=ggplot(num_strokes, aes(age_numeric,mean, color=condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5)) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Number of strokes') +
+  theme(legend.position = "right") +
+  ylim(0,30) +
+  facet_grid(~site)
+```
+
+### Plot effort covariates
+Looks like THU kids spent more time on drawings, interesting; otherwise no big differences.
+
+```{r}
+p1
+```
+
+```{r}
+p2
+```
+
+```{r}
+p3
+```
+
+### Plot traing scores
+```{r}
+ggplot(tracing_scores, aes(age_numeric,mean)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Tracing score') +
+  theme(legend.position = "none") +
+  geom_smooth(col='grey', span = 10,alpha=smooth_alpha)  +
+  facet_grid(~site) +
+  ylim(0,4)
+```
+
+## Correlation of item effects across sites
+Wow, cats are always badly classified.
+```{r}
+item_effects <- d %>%
+  group_by(session_id,age_numeric,category, site) %>%
+  summarize(avg_sub_cor = mean(correct_or_not)) %>%
+  group_by(age_numeric,category, site) %>%
+  summarize(avg_cor = mean(avg_sub_cor)) %>%
+  spread(key=site, value=avg_cor)
+
+
+ggplot(item_effects, aes(x=CDM, y=THU, color=age_numeric)) +
+  geom_point() + 
+  theme_few(base_size = base_size_chosen) + 
+  ylim(0,1) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  facet_wrap(~category)
+```
+
+```{r}
+item_effects_no_age <- d %>%
+  group_by(session_id,category, site) %>%
+  summarize(avg_sub_cor = mean(correct_or_not)) %>%
+  group_by(category, site) %>%
+  summarize(avg_cor = mean(avg_sub_cor)) %>%
+  spread(key=site, value=avg_cor)
+  
+ggplot(item_effects_no_age, aes(x=CDM, y=THU, color=category)) +
+  geom_point() + 
+  theme_few(base_size = base_size_chosen) + 
+  geom_abline(intercept = 0, slope=1)
+```
+
+
+# Inferential stats
+## Try maximumal model first
+Singular boundary fits when including (condition | subject) random slopes
+Won't converge with random slopes for condition x age xs ite on each category
+```{r}
+full_model <- glmer(correct_or_not ~ condition*scale(age_numeric)*site +
+                        (1 | unique_ids) +
+                        (condition*scale(age_numeric) | category),
+      data = d, family="binomial", control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+summary(full_model)
+```
+
+## Remove 3-way interaction
+No interactions with site are significant, removing from main effects structure
+When 3 way interaction is removed, still can't add back more random slopes.
+```{r}
+
+full_model_no_int <- glmer(correct_or_not ~ condition*scale(age_numeric)+site +
+                        (1 | unique_ids) +
+                        (condition*scale(age_numeric) | category),
+      data = d, family="binomial", control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+summary(full_model_no_int)
+
+```
+
+ANOVA suggests that these two models -- with/without 3-way int -- explain equal variance.
+```{r}
+anova(full_model, full_model_no_int)
+```
+
+```{r}
+summary(full_model_no_int)
+```
+
+
+## Add in effort/tracing covariates — does effort mediate any of the differences we're seeing? Not really. Still see same main effects structure.
+```{r}
+full_model_with_effort <- glmer(correct_or_not ~ condition*scale(age_numeric)+site +
+                      scale(avg_tracing_score) +
+                      scale(mean_intensity) +
+                      scale(draw_duration) +
+                      scale(num_strokes) + 
+                      (1 | unique_ids) +
+                      (condition*scale(age_numeric)  | category),
+      data = d, family="binomial", control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+# frustratingly can't get anything with random slopes to converge!
+summary(full_model_with_effort)
+
+```
+
+## No difference in tracing abilities across sites; only across age
+```{r}
+tracing_diff = lmer(rating ~ age_numeric + site + (1|unique_ids), data = all_tracing)
+summary(tracing_diff)
+```
+

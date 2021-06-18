@@ -180,7 +180,7 @@ var experiment = {
         var response_logged = false;
         var input = document.getElementById("recognitionInput");
         var response = input.value;
-        var testing = true
+        var testing = false
 
         // if there is something in the response, log it
         if (input && response) {

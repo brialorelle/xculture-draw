@@ -16,7 +16,7 @@ library(here)
 
 # compile all output csvs
 ```{r}
-for (batch in 1:4){
+for (batch in 1:21){
   this_batch = read.csv(paste0("csv_out/",'batch',  batch, '_production_june2021.csv')) 
   if (batch==1) {
     all_data = this_batch
@@ -43,7 +43,7 @@ d <- all_data %>%
 included_subs <- d %>%
   group_by(subID) %>%
   summarize(num_drawings = length(unique(image_name_short))) %>%
-  filter(num_drawings > 140)
+  filter(num_drawings > 50)
 
 # used_all_options <- d %>%
 #   group_by(subID) %>%
@@ -62,7 +62,7 @@ humans <- d %>%
   # get site and unique ids from filenanme
   mutate(unique_ids = str_split_fixed(imageName, '_',6)[,6]) %>%
   mutate(unique_ids = str_split_fixed(unique_ids, '.png',2)[,1]) %>%
-  mutate(site = case_when( is.na(str_locate(unique_ids,'photodraw_e2')[,1]) ~ "THU", 
+  mutate(site = case_when(is.na(str_locate(unique_ids,'photodraw_e2')[,1]) ~ "THU", 
                            !is.na(str_locate(unique_ids,'photodraw_e2')[,1]) ~ "CDM")) %>%
   mutate(unique_ids = case_when(site == "CDM" ~ str_split_fixed(unique_ids, '_',2)[,2],
                                 site == "THU" ~ unique_ids)) %>%
@@ -83,5 +83,5 @@ humans <- d %>%
 
 
 ```{r}
-write.csv(humans, here::here('data/compiled/recognition_ratings/compiled_data_test.csv'))
+write.csv(humans, here::here('data/compiled/recognition_ratings/compiled_human_recognition.csv'))
 ```

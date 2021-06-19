@@ -106,13 +106,13 @@ d <- classification_data %>%
 
 ### Load human classification data
 ```{r}
-humans <- read.csv(here::here('data/compiled/recognition_ratings/compiled_data_test.csv')) 
+humans <- read.csv(here::here('data/compiled/recognition_ratings/compiled_human_recognition.csv')) 
   
 humans_merged <- humans %>%
   group_by(unique_ids, category) %>% # group by each drawing of each category
   summarize(num_correct = mean(correct_or_not)) %>%
-  left_join(d, by=c('unique_ids','category')) # join with classification data
-  
+  left_join(d, by=c('unique_ids','category')) %>% # join with classification data 
+  filter(!is.na(age))
 ```
 
 ### Clean up: Get rid of tech error drawings (see note)
@@ -198,23 +198,34 @@ cor.test(humans_merged$num_correct, humans_merged$correct_or_not)
 ### Compute accuracy by age, condition, site 
 ```{r descriptives-across-age}
 cor_by_age_by_site_by_cond <- d %>%  
-  group_by(session_id,category,condition,age_numeric, site) %>%
+  group_by(unique_ids,category,condition,age_numeric, site) %>%
   summarize(avg_cor = mean(correct_or_not)) %>%
   group_by(age_numeric,condition, site) %>%
-  multi_boot_standard(col = "avg_cor") 
+  multi_boot_standard(col = "avg_cor") %>%
+  mutate(who = "model")
+
+cor_by_age_by_site_by_cond_humans <- humans_merged %>%  
+  group_by(unique_ids,category,condition,age_numeric, site) %>%
+  summarize(avg_cor = mean(num_correct)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_cor") %>%
+  mutate(who = 'humans')
+
+humans_and_models <- cor_by_age_by_site_by_cond %>%
+  full_join(cor_by_age_by_site_by_cond_humans)
 ```
  
 ### Plot accuracy by age, condition, site 
 ```{r}
 base_size_chosen=12; smooth_alpha=.2
-ggplot(cor_by_age_by_site_by_cond, aes(age_numeric,mean, col = condition)) +
-  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) + 
+ggplot(humans_and_models, aes(age_numeric,mean, col = condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) +
   theme_few(base_size = base_size_chosen) + 
   labs(x='Age', y='Classification accuracy') +
   ylim(0,1) + 
-  geom_smooth(span=10, alpha=.2) + 
+  geom_smooth(span=10, alpha=.2) +
   geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
-  facet_grid(~site)
+  facet_grid(who~site)
 ```
 ### Compute effort/tracing by age, condition, site 
 ```{r}
@@ -350,6 +361,14 @@ full_model <- glmer(correct_or_not ~ condition*scale(age_numeric)*site +
 summary(full_model)
 ```
 
+```{r}
+full_model_humans <- lmer(num_correct ~ condition*scale(age_numeric)*site +
+                        (1 | unique_ids) +
+                        (condition | category),
+      data = humans_merged)
+summary(full_model_humans)
+```
+
 ### Remove 3-way interaction
 No interactions with site are significant, removing from main effects structure
 When 3 way interaction is removed, still can't add back more random slopes.
@@ -361,6 +380,16 @@ full_model_no_int <- glmer(correct_or_not ~ condition*scale(age_numeric)+site +
       data = d, family="binomial", control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
 
 summary(full_model_no_int)
+
+```
+
+```{r}
+full_model_no_int_humans <- lmer(num_correct ~ condition*scale(age_numeric)+site +
+                        (1 | unique_ids) +
+                        (condition | category),
+      data = humans_merged)
+
+summary(full_model_no_int_humans)
 
 ```
 
@@ -411,7 +440,7 @@ summary(with_site_condition_and_site_age)
 
 ## Add in effort/tracing covariates — does effort mediate any of the differences we're seeing? Not really. Still see same main effects structure.
 ```{r}
-full_model_with_effort <- glmer(correct_or_not ~ condition*scale(age_numeric)+site +
+full_model_with_effort <- glmer(correct_or_not ~ condition*scale(age_numeric)*site +
                       scale(avg_tracing_score) +
                       scale(mean_intensity) +
                       scale(draw_duration) +
@@ -425,9 +454,24 @@ summary(full_model_with_effort)
 
 ```
 
+## Repeat with human classificatinos
+```{r}
+full_model_with_effort <- lmer(num_correct ~ condition*scale(age_numeric)*site +
+                      scale(avg_tracing_score) +
+                      scale(mean_intensity) +
+                      scale(draw_duration) +
+                      scale(num_strokes) + 
+                      (1 | unique_ids) +
+                      (condition |category), data = humans_merged)
+
+# condition*age slopes on categories won't converge
+summary(full_model_with_effort)
+```
+
 ## No difference in tracing abilities across sites; only across age
 ```{r}
 tracing_diff = lmer(rating ~ age_numeric + site + (1|unique_ids), data = all_tracing)
 summary(tracing_diff)
 ```
+
 

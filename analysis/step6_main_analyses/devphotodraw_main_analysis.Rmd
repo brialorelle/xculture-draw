@@ -109,7 +109,7 @@ d <- classification_data %>%
 humans <- read.csv(here::here('data/compiled/recognition_ratings/compiled_human_recognition.csv')) 
   
 humans_merged <- humans %>%
-  group_by(unique_ids, category) %>% # group by each drawing of each category
+  group_by(unique_ids, category, image_name_short) %>% # group by each drawing of each category
   summarize(num_correct = mean(correct_or_not)) %>%
   left_join(d, by=c('unique_ids','category')) %>% # join with classification data 
   filter(!is.na(age))
@@ -194,6 +194,37 @@ cor.test(humans_merged$num_correct, humans_merged$target_label_prob)
 cor.test(humans_merged$num_correct, humans_merged$correct_or_not)
 ```
 
+```{r}
+
+category_age_cond <- humans_merged %>%
+  group_by(category, condition) %>%
+  summarize(humans_pc = mean(num_correct), model_pc = mean(correct_or_not, na.rm=TRUE)) 
+  
+```
+
+```{r}
+ggplot(category_age_cond, aes(x=model_pc, y=humans_pc, color=condition))+
+  geom_point() +
+  ylim(0,1) +
+  xlim(0,1) +
+  theme_few() +
+  theme(aspect.ratio = 1) +
+  facet_wrap(~category) +
+  geom_abline(color='grey') 
+
+
+```
+```{r}
+ggplot(category_age_cond, aes(x=model_pc, y=humans_pc, label=category))+
+  geom_point() +
+  ylim(0,1) +
+  xlim(0,1) +
+  theme_few() +
+  theme(aspect.ratio = 1) +
+  facet_wrap(~condition) +
+  geom_abline(xintercept=0, color='grey') +
+  ggrepel::geom_label_repel() 
+```
 ## Main descriptive anlayses 
 ### Compute accuracy by age, condition, site 
 ```{r descriptives-across-age}
@@ -214,6 +245,25 @@ cor_by_age_by_site_by_cond_humans <- humans_merged %>%
 humans_and_models <- cor_by_age_by_site_by_cond %>%
   full_join(cor_by_age_by_site_by_cond_humans)
 ```
+
+```{r descriptives-across-age}
+cor_by_age_by_cond <- d %>%  
+  group_by(unique_ids,category,condition,age_numeric) %>%
+  summarize(avg_cor = mean(correct_or_not)) %>%
+  group_by(age_numeric,condition) %>%
+  multi_boot_standard(col = "avg_cor") %>%
+  mutate(who = "model")
+
+cor_by_age_by_cond_humans <- humans_merged %>%  
+  group_by(unique_ids,category,condition,age_numeric) %>%
+  summarize(avg_cor = mean(num_correct)) %>%
+  group_by(age_numeric,condition) %>%
+  multi_boot_standard(col = "avg_cor") %>%
+  mutate(who = 'humans')
+
+humans_and_models_no_site <- cor_by_age_by_cond_humans %>%
+  full_join(cor_by_age_by_cond)
+```
  
 ### Plot accuracy by age, condition, site 
 ```{r}
@@ -227,6 +277,54 @@ ggplot(humans_and_models, aes(age_numeric,mean, col = condition)) +
   geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
   facet_grid(who~site)
 ```
+```{r}
+base_size_chosen=12; smooth_alpha=.2
+ggplot(humans_and_models_no_site, aes(age_numeric,mean, col = conditionf)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) +
+  theme_few(base_size = base_size_chosen) + 
+  labs(x='Age', y='Classification accuracy') +
+  ylim(0,1) + 
+  geom_smooth(span=10, alpha=.2) +
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  facet_grid(~who) 
+
+```
+```{r}
+disagreements <- humans_merged %>%
+  filter(num_correct>.8) %>%
+  filter(correct_or_not==0) %>%
+  filter(condition=='S')
+  
+disagreements <- disagreements %>%
+  mutate(image_path = here::here('data/compiled/drawings/object_drawings', image_name_short)) %>%
+  mutate(new_image_path = here::here('data/compiled/drawings/disagreements', image_name_short)) 
+
+dir.create(here::here('data/compiled/drawings/disagreements'))
+
+file.copy(disagreements$image_path, disagreements$new_image_path)
+
+
+```
+
+
+```{r}
+machine_p_advantage <- humans_merged %>%
+  filter(num_correct<.5) %>%
+  filter(correct_or_not==1) %>%
+  filter(condition=='P')
+  
+machine_p_advantage <- machine_p_advantage %>%
+  mutate(image_path = here::here('data/compiled/drawings/object_drawings', image_name_short)) %>%
+  mutate(new_image_path = here::here('data/compiled/drawings/machine_p_advantage', image_name_short)) 
+
+dir.create(here::here('data/compiled/drawings/machine_p_advantage'))
+
+file.copy(machine_p_advantage$image_path, machine_p_advantage$new_image_path)
+
+
+```
+
+
 ### Compute effort/tracing by age, condition, site 
 ```{r}
 draw_duration <- d %>%
@@ -326,6 +424,59 @@ item_effects <- d %>%
 
 
 ggplot(item_effects, aes(x=CDM, y=THU, color=age_numeric)) +
+  geom_point() + 
+  theme_few(base_size = base_size_chosen) + 
+  ylim(0,1) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  facet_wrap(~category)
+```
+
+```{r}
+item_effects <- humans_merged %>%
+  group_by(session_id,age_numeric,category, site) %>%
+  summarize(avg_sub_cor = mean(num_correct)) %>%
+  group_by(age_numeric,category, site) %>%
+  summarize(avg_cor = mean(avg_sub_cor)) %>%
+  spread(key=site, value=avg_cor)
+
+
+ggplot(item_effects, aes(x=CDM, y=THU, color=age_numeric)) +
+  geom_point() + 
+  theme_few(base_size = base_size_chosen) + 
+  ylim(0,1) + 
+  xlim(0,1) +
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  geom_abline(color = 'grey', intercept=0) + 
+  facet_wrap(~category)
+```
+
+```{r}
+item_effects_not_spread <- humans_merged %>%
+  group_by(session_id,age_numeric,category, site) %>%
+  summarize(avg_sub_cor = mean(num_correct)) %>%
+  group_by(age_numeric,category, site) %>%
+  multi_boot_standard(col = "avg_sub_cor")
+
+ggplot(item_effects_not_spread, aes(x=as.numeric(age_numeric), y=mean, color=site)) +
+  geom_point() +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) +
+  theme_few(base_size = base_size_chosen) + 
+  ylim(0,1) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  ylab('Proportion correct') +
+  xlab('Age (in years)') +
+  geom_abline(color = 'grey', intercept=0) +
+  geom_smooth(span=20, alpha=.1) +
+  facet_wrap(~category)
+```
+
+
+```{r}
+item_effects <- humans_merged %>%
+  group_by(age_numeric,category) %>%
+  summarize(model_pc = mean(correct_or_not), human_pc = mean(num_correct)) 
+
+ggplot(item_effects, aes(x=model_pc, y=human_pc, color=age_numeric)) +
   geom_point() + 
   theme_few(base_size = base_size_chosen) + 
   ylim(0,1) + 

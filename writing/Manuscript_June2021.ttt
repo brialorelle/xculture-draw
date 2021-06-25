@@ -1,0 +1,48 @@
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+[ht]
+\centering
+\begin{tabular}{rrrrrr}
+  \hline
+ & Estimate & Std. Error & df & t value & Pr($>$$|$t$|$) \\
+  \hline
+Intercept & 0.73 & 0.02 & 31.62 & 34.74 & 0.000 \\
+  Task & -0.02 & 0.02 & 17.29 & -0.87 & 0.397 \\
+  Age & 0.17 & 0.02 & 373.04 & 11.21 & 0.000 \\
+  Site & 0.05 & 0.02 & 385.12 & 2.39 & 0.017 \\
+  Task*Age & -0.02 & 0.01 & 2622.52 & -1.47 & 0.141 \\
+  Task*Site & -0.00 & 0.02 & 2631.48 & -0.20 & 0.842 \\
+  Age*Site & -0.00 & 0.02 & 388.66 & -0.06 & 0.951 \\
+  Task*Age*Site & 0.00 & 0.02 & 2639.46 & 0.21 & 0.834 \\
+   \hline
+\end{tabular}
+\caption{Table 1. Model coefficients from a linear mixed mode predicting the recognizability of each drawing for the main experimental contrasts.}
+\end{table*}
+\efloatseparator
+ 
+\begin{table*}[hbt]
+\ifnextchar[{\eatarg}{}
+[ht]
+\centering
+\begin{tabular}{rrrrrr}
+  \hline
+ & Estimate & Std. Error & df & t value & Pr($>$$|$t$|$) \\
+  \hline
+Intercept & 0.72 & 0.02 & 34.02 & 37.49 & 0.000 \\
+  Task & -0.02 & 0.02 & 17.55 & -1.19 & 0.249 \\
+  Age & 0.14 & 0.02 & 376.68 & 9.30 & 0.000 \\
+  Site & 0.07 & 0.02 & 459.46 & 3.58 & 0.000 \\
+  Est. tracing score & 0.06 & 0.01 & 249.21 & 5.71 & 0.000 \\
+  Avg. intensity & 0.01 & 0.01 & 2839.40 & 1.90 & 0.058 \\
+  Draw duration & -0.03 & 0.01 & 1692.69 & -3.42 & 0.001 \\
+  Number of strokes & 0.03 & 0.01 & 2655.21 & 4.67 & 0.000 \\
+  Task*Age & -0.02 & 0.01 & 2623.63 & -1.72 & 0.086 \\
+  Task\&Site & -0.01 & 0.02 & 2630.59 & -0.45 & 0.655 \\
+  Age*Site & -0.01 & 0.02 & 415.59 & -0.74 & 0.462 \\
+  Task*Age*Site & 0.00 & 0.02 & 2638.72 & 0.18 & 0.858 \\
+   \hline
+\end{tabular}
+\caption{Table 2. Model coefficients from a linear mixed mode predicting the recognizability of each drawing as a function the both the main experimental contrasts (task, site, and age) as well as several effort covariates and individual's estimates tracing abilities.}
+\end{table*}
+\efloatseparator
+ 

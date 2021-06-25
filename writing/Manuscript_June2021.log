@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  23 JUN 2021 21:21
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.5.23)  25 JUN 2021 15:00
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -994,30 +994,30 @@ Package csquotes Info: Redefining alias 'default' -> 'english'.
 (./Manuscript_June2021.aux)
 \openout1 = `Manuscript_June2021.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 144.
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 144.
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 144.
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 144.
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 144.
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 144.
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 144.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 144.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 141.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 141.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 141.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 141.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 141.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 141.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 141.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 141.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 144.
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 144.
-LaTeX Font Info:    ... okay on input line 144.
-LaTeX Font Info:    Try loading font information for T1+lmr on input line 144.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 141.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 141.
+LaTeX Font Info:    ... okay on input line 141.
+LaTeX Font Info:    Try loading font information for T1+lmr on input line 141.
 (/usr/local/texlive/2017/texmf-dist/tex/latex/lm/t1lmr.fd
 File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
@@ -1092,7 +1092,7 @@ Package caption Info: longtable package is loaded.
 Package: ltcaption 2013/06/09 v1.4-94 longtable captions (AR)
 )
 Package caption Info: End \AtBeginDocument code.
-LaTeX Info: Redefining \microtypecontext on input line 144.
+LaTeX Info: Redefining \microtypecontext on input line 141.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using protrusion set `basicmath'.
@@ -1107,7 +1107,7 @@ File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman
 (RS)
 )
 \AtBeginShipoutBox=\box35
-Package hyperref Info: Link coloring OFF on input line 144.
+Package hyperref Info: Link coloring OFF on input line 141.
 (/usr/local/texlive/2017/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 (/usr/local/texlive/2017/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
@@ -1115,42 +1115,42 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
 \c@section@level=\count148
 )
-LaTeX Info: Redefining \ref on input line 144.
-LaTeX Info: Redefining \pageref on input line 144.
-LaTeX Info: Redefining \nameref on input line 144.
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 146.
+LaTeX Info: Redefining \ref on input line 141.
+LaTeX Info: Redefining \pageref on input line 141.
+LaTeX Info: Redefining \nameref on input line 141.
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 143.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 146.
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 143.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 146
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 143
 .
 (/usr/local/texlive/2017/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 146
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 143
 .
 (/usr/local/texlive/2017/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 146.
+(Font)              <12> on input line 143.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 146.
+(Font)              <8> on input line 143.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 146.
-LaTeX Font Info:    Try loading font information for U+msa on input line 146.
+(Font)              <6> on input line 143.
+LaTeX Font Info:    Try loading font information for U+msa on input line 143.
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/local/texlive/2017/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 146.
+LaTeX Font Info:    Try loading font information for U+msb on input line 143.
 (/usr/local/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/usr/local/texlive/2017/texmf-dist/tex/latex/microtype/mt-msb.cfg
@@ -1159,119 +1159,136 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 File: mt-eur.cfg 2006/07/31 v1.1 microtype config. file: AMS Euler Roman (RS)
 ) [1{/usr/local/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
-] [2] [3] [4] [5] [6] [7] [8]
+] [2] [3]
+Underfull \vbox (badness 4752) has occurred while \output is active []
 
-LaTeX Warning: Citation `simonyan2014very' on page 9 undefined on input line 22
-4.
+[4]
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[9]
-
-LaTeX Warning: Reference `fig:main_results' on page 10 undefined on input line 
-236.
-
-
-Underfull \vbox (badness 5359) has occurred while \output is active []
-
-[10]
+[5] [6]
 \openout4 = `Manuscript_June2021.fff'.
 
 (Manuscript_June2021.fff)
-LaTeX Font Info:    Try loading font information for T1+lmtt on input line 249.
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[7] [8]
+
+LaTeX Warning: Citation `simonyan2014very' on page 9 undefined on input line 22
+1.
+
+[9] [10] [11]
+Underfull \vbox (badness 4752) has occurred while \output is active []
+
+[12]
+LaTeX Font Info:    Try loading font information for T1+lmtt on input line 245.
 
 (/usr/local/texlive/2017/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-) [11]
-Overfull \hbox (400.92041pt too wide) in paragraph at lines 270--270
-[]\T1/lmtt/m/n/12 ## \caption{Model coefficients from a  linear mixed mode pred
-icting the recognizability of each drawing for the main experimental contrasts.
-}[] 
- []
-
-[12]
-LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 297
-.
-(/usr/local/texlive/2017/texmf-dist/tex/latex/lm/ts1lmtt.fd
-File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-Overfull \hbox (1154.27078pt too wide) in paragraph at lines 297--297
-[]\T1/lmtt/m/n/12 ## \caption{Model coefficients from a linear mixed mode predi
-cting the recognizability of each drawing as a function the both the main exper
-imental contrasts (task, site, and age) as well as several effort covariates an
-d individual\TS1/lmtt/m/n/12 '\T1/lmtt/m/n/12 s estimates tracing abilities.}[]
- 
- []
+\openout3 = `Manuscript_June2021.ttt'.
 
-[13] [14] [15] [16] AED endfloat: Processing end Figures and Tables [17] (./Man
-uscript_June2021.fff
-<Manuscript_June2021_files/figure-latex/main-results-1.png, id=143, 2360.82pt x
+(Manuscript_June2021.ttt) [13] [14] [15] [16] AED endfloat: Processing end Figu
+res and Tables [17] (./Manuscript_June2021.ttt [18
+
+
+] [19
+
+]) (./Manuscript_June2021.fff <figs/task_examples.png, id=169, 614.5359pt x 217
+.0509pt>
+File: figs/task_examples.png Graphic file (type png)
+<use figs/task_examples.png>
+Package pdftex.def Info: figs/task_examples.png used on input line 4.
+(pdftex.def)             Requested size: 469.75272pt x 165.91423pt.
+[20
+
+
+ <./figs/task_examples.png (PNG copy)>]
+<Manuscript_June2021_files/figure-latex/main-results-1.png, id=174, 2360.82pt x
  1105.12875pt>
 File: Manuscript_June2021_files/figure-latex/main-results-1.png Graphic file (t
 ype png)
 <use Manuscript_June2021_files/figure-latex/main-results-1.png>
 Package pdftex.def Info: Manuscript_June2021_files/figure-latex/main-results-1.
-png used on input line 5.
+png used on input line 12.
 (pdftex.def)             Requested size: 469.7421pt x 219.89201pt.
-[18
-
+[21
 
  <./Manuscript_June2021_files/figure-latex/main-results-1.png>]
-<Manuscript_June2021_files/figure-latex/effort-covariates-1.png, id=151, 2352.7
-9pt x 1119.18124pt>
+<Manuscript_June2021_files/figure-latex/effort-covariates-1.png, id=181, 2352.7
+9pt x 818.05624pt>
 File: Manuscript_June2021_files/figure-latex/effort-covariates-1.png Graphic fi
 le (type png)
 <use Manuscript_June2021_files/figure-latex/effort-covariates-1.png>
 Package pdftex.def Info: Manuscript_June2021_files/figure-latex/effort-covariat
-es-1.png used on input line 17.
-(pdftex.def)             Requested size: 469.72395pt x 223.4395pt.
-[19
+es-1.png used on input line 24.
+(pdftex.def)             Requested size: 469.72395pt x 163.32124pt.
+[22
 
  <./Manuscript_June2021_files/figure-latex/effort-covariates-1.png>]
-<Manuscript_June2021_files/figure-latex/tracing-1.png, id=159, 2351.78625pt x 1
+<Manuscript_June2021_files/figure-latex/tracing-1.png, id=187, 2351.78625pt x 1
 119.18124pt>
 File: Manuscript_June2021_files/figure-latex/tracing-1.png Graphic file (type p
 ng)
 <use Manuscript_June2021_files/figure-latex/tracing-1.png>
 Package pdftex.def Info: Manuscript_June2021_files/figure-latex/tracing-1.png u
-sed on input line 29.
+sed on input line 36.
 (pdftex.def)             Requested size: 469.73888pt x 223.54196pt.
-[20
+[23
 
- <./Manuscript_June2021_files/figure-latex/tracing-1.png>])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 413.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 413.
+ <./Manuscript_June2021_files/figure-latex/tracing-1.png>] <figs/example_drawin
+gs.png, id=193, 985.6825pt x 563.10374pt>
+File: figs/example_drawings.png Graphic file (type png)
+<use figs/example_drawings.png>
+Package pdftex.def Info: figs/example_drawings.png used on input line 47.
+(pdftex.def)             Requested size: 469.7532pt x 268.36206pt.
+[24
+
+ <./figs/example_drawings.png>]
+<Manuscript_June2021_files/figure-latex/item-effects-1.png, id=199, 2351.78625p
+t x 2293.56876pt>
+File: Manuscript_June2021_files/figure-latex/item-effects-1.png Graphic file (t
+ype png)
+<use Manuscript_June2021_files/figure-latex/item-effects-1.png>
+Package pdftex.def Info: Manuscript_June2021_files/figure-latex/item-effects-1.
+png used on input line 55.
+(pdftex.def)             Requested size: 469.73888pt x 458.11069pt.
+[25
+
+ <./Manuscript_June2021_files/figure-latex/item-effects-1.png>])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 438.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 438.
 (./Manuscript_June2021.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 413.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 413.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 438.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 438.
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 16614 strings out of 492995
- 243511 string characters out of 6132704
- 368597 words of memory out of 5000000
- 19745 multiletter control sequences out of 15000+600000
- 45176 words of font info for 78 fonts, out of 8000000 for 9000
+ 16612 strings out of 492995
+ 243686 string characters out of 6132704
+ 368992 words of memory out of 5000000
+ 19729 multiletter control sequences out of 15000+600000
+ 47949 words of font info for 79 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 43i,12n,47p,2258b,530s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/local
-/texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/2017/
-texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2017/texmf-dist/fon
-ts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvi
-ps/lm/lm-mathex.enc}{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-m
-athit.enc}</usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmbx12.pfb>
-</usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/loca
-l/texlive/2017/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></usr/local/texlive/
-2017/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/local/texlive/2017/texmf-
-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2017/texmf-dist/fonts/
-type1/public/lm/lmr8.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public
-/lm/lmri12.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmsy10
-.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/
-local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmtt12.pfb>
-Output written on Manuscript_June2021.pdf (20 pages, 523959 bytes).
+ 43i,12n,47p,2258b,495s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/
+texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/local/texlive/2017/t
+exmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2017/texmf-dist/
+fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2017/texmf-dist/fonts/enc/
+dvips/lm/lm-mathit.enc}</usr/local/texlive/2017/texmf-dist/fonts/type1/public/l
+m/lmbx12.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmex10.p
+fb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmmi12.pfb></usr/l
+ocal/texlive/2017/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/local/texliv
+e/2017/texmf-dist/fonts/type1/public/lm/lmr12.pfb></usr/local/texlive/2017/texm
+f-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2017/texmf-dist/fonts
+/type1/public/lm/lmri12.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/pub
+lic/lm/lmsy10.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lms
+y8.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmtt12.pfb>
+Output written on Manuscript_June2021.pdf (25 pages, 1765568 bytes).
 PDF statistics:
- 269 PDF objects out of 1000 (max. 8388607)
- 229 compressed objects within 3 object streams
- 77 named destinations out of 1000 (max. 500000)
- 6272 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 310 PDF objects out of 1000 (max. 8388607)
+ 259 compressed objects within 3 object streams
+ 89 named destinations out of 1000 (max. 500000)
+ 6287 words of extra memory for PDF output out of 10000 (max. 10000000)
 

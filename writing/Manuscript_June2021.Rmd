@@ -191,7 +191,7 @@ humans <- read.csv(here::here('data/compiled/recognition_ratings/compiled_human_
 ```{r join-human-rec-with-meta}
 d <- humans %>%
   group_by(unique_ids, category, image_name_short, site, age) %>% # group by each drawing of each category
-  summarize(prop_correct = mean(correct_or_not))  %>%
+  summarize(num_correct = sum(correct_or_not==TRUE), num_incorrect = sum(correct_or_not==FALSE), prop_correct = mean(correct_or_not))  %>%
    left_join(all_meta_cleaned %>% dplyr::select(unique_ids, category, condition, num_strokes, draw_duration, mean_intensity)) %>%
   mutate(age_numeric = age) %>%
   mutate(age_numeric = as.double(age_numeric)) %>%
@@ -265,31 +265,33 @@ We used a combination of deep CNN activations and logistic regressions to obtain
 human_v_model = cor.test(humans_and_models_merged$prop_correct, humans_and_models_merged$correct_or_not)
 ```
 
-To assess our main hypotheses, we fit linear mixed effects models to the human recognition scores to assess the factors that influenced the recognizability of the drawings that children produced. A first linear mixed effect model was fit to the recognizability scores for each drawing, including fixed effects of children's age (in years), geographical site (San Jose vs. Beijing), and drawing task (verbal cue vs. picture cue) and the three way interaction between these key variables. We initially planned to include random slopes for the effect of drawing task on each child (as this varied within-subjects), and random slopes for the effect the full three-way interactions between task, age, and site on each category. However, all models with this complicated random effects structure failed to converge, and the reported models use the maximal random effects structure that did converge (see corresponding codebase).
+To assess our main hypotheses, we fit generalized linear mixed effects models to the human recognition scores to assess the factors that influenced the recognizability of the drawings that children produced. A first generalized linear mixed effect model was fit to the recognizability scores for each drawing, including fixed effects of children's age (in years), geographical site (San Jose vs. Beijing), and drawing task (verbal cue vs. picture cue) and the three way interaction between these key variables. We initially planned to include random slopes for the effect of drawing task on each child (as this varied within-subjects), and random slopes for the effect the full three-way interactions between task, age, and site on each category. However, models with this complicated random effects structure failed to converge, and the reported models use the maximal random effects structure that did converge -- which included random sloops for the two-way interaction between task and age on each category.
 
-In a secondary analysis, we aimed to understand the degree to which any of the above effects were mediated by (1) children's tracing abilities and (2) the amount of effort that children expended while drawings. We thus ran the same main model while also now including fixed effects of children's estimated tracing score (see Measuring Tracing Abilities), the time children spent drawing (in seconds), the mean intensity of the drawing (i.e. percentage of non-white pixels), and the number of strokes children used. All predictors were scaled to have a mean of 0 and a standard deviation of 1. Finally, we also assessed the degree to which tracing ability development differed by geographical site, where tracing scores were modeled as a function of age (in years), site, and their interaction, with random intercepts for each participant. 
+In a secondary analysis, we aimed to understand the degree to which any of the above effects were mediated by (1) children's tracing abilities and (2) the amount of effort that children expended while drawings. We thus ran the same main model while also now including fixed effects of children's estimated tracing score (see Measuring Tracing Abilities), the time children spent drawing (in seconds), the mean intensity of the drawing (i.e. percentage of non-white pixels), and the number of strokes children used. All predictors were scaled to have a mean of 0 and a standard deviation of 1. Finally, we also assessed the degree to which tracing ability development differed by geographical site, where tracing scores were modeled as a function of age (in years), site, and their interaction, with the same random effects structure as the first model.
  
 This analysis plan was pre-registered at https://osf.io/qymjr. While we had initially planned to use automated recognition scores as our main dependent variable, following prior work [@long2021parallel],  we found that these automated recognition scores were only modestly correlated with human recognition scores ($r$ = `r round(human_v_model$estimate,2)`, $t$ = `r round(human_v_model$statistic,2)`, p < .001); furthermore, descriptive plots of the automated recognition scores revealed a overall difference between the two drawing tasks that was not evident in the human recognition data. To be conservative, we thus fit all of our models to the human recognition data but have made all model classifications available for future research.
  
+
+
 ```{r}
-full_model <- lmer(prop_correct ~ condition*scale(age_numeric)*site +
-                        (1 | unique_ids) +
-                        (condition | category),
-      data = d)
+full_model <- glmer(cbind(num_correct, num_incorrect) ~ condition*scale(age_numeric)*site +
+                        (condition | unique_ids) +
+                        (condition*scale(age_numeric) | category),
+      data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
 
 full_model_out = summary(full_model)
 
 ```
 
 ```{r}
-full_model_with_effort <- lmer(prop_correct ~ condition*scale(age_numeric)*site +
+full_model_with_effort <- glmer(cbind(num_correct, num_incorrect) ~ condition*scale(age_numeric)*site +
                       scale(avg_tracing_score) +
                       scale(mean_intensity) +
                       scale(draw_duration) +
                       scale(num_strokes) + 
-                      (1 | unique_ids) +
-                      (condition | category),
-      data = d)
+                      (condition | unique_ids) +
+                      (condition*scale(age_numeric) | category),
+      data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
 
 # frustratingly can't get anything with random slopes to converge!
 full_model_with_effort_out = summary(full_model_with_effort)
@@ -297,12 +299,12 @@ full_model_with_effort_out = summary(full_model_with_effort)
 ```
 
 ```{r}
-site_difference <- lmer(prop_correct ~ scale(age_numeric)^2*site +
+site_difference <- glmer(cbind(num_correct, num_incorrect) ~ poly(scale(age_numeric),2)*site +
                       (1 | unique_ids) +
                       (1 | category),
-      data = d)
+      data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
 
-# frustratingly can't get anything with random slopes to converge!
+
 site_difference_out = summary(site_difference)
 
 ```
@@ -310,15 +312,15 @@ site_difference_out = summary(site_difference)
  
 # Results
 ### Confirmatory Analyses
-Overall, we found relative consistency in the developmental trajectory of children's drawings. Figure \ref{fig:main-results} shows the recognizability of children's drawings at each age as a function of the drawing task and the geographical site that they were located in; All model coefficients can be found in Table 1.  First, we found steady changes in the recognizability of children's drawings across this age range, replicating prior work with an observational dataset collected at a free-standing kiosk [@long2021parallel]. Critically, these changes in recognizability did not depend on the drawing task children completed: children's drawings were equally recognizable when they were asked to "Draw this rabbit as it looks in the picture" and they were simply asked "What about a rabbit? Can you draw a rabbit." While we anticipated that older children might produce more recognizable drawings when drawing from observation -- as do adults when presented with canonical photographs of object categories [@yang2021visual] -- this was not the case.  However, we did observe a main effect of geographical site: overall, we found that children from Beijing, China tended to produce more recognizable drawings than children from San Jose, USA (see coefficients in Table 1). A closer look directly comparing the recognizability of the drawings made at children at each site hints that the children from Beijing, China may tend to produce more recognizable drawings earlier in development.  
+Overall, we found relative consistency in the developmental trajectory of children's drawings: Figure \ref{fig:main-results} shows the recognizability of children's drawings at each age as a function of the drawing task and the geographical site that they were located in (all model coefficients can be found in Table 1). We found steady changes in the recognizability of children's drawings across this age range, replicating prior work with an observational dataset collected at a free-standing kiosk [@long2021parallel]. Further, we found that these changes in recognizability did not depend on the drawing task children completed: children's drawings were equally recognizable when they were asked to "Draw this rabbit as it looks in the picture" versus they were simply asked "Can you draw a rabbit?". While we anticipated that older children might produce more recognizable drawings when provided with a picture cue -- as do adults when presented with canonical photographs of object categories [@yang2021visual] -- this was not the case. However, we did observe a main effect of geographical site: we found that children from Beijing, China overall tended to produce more recognizable drawings than children from San Jose, USA (see coefficients in Table 1). A closer look comparing the recognizability of the drawings made at children at each age and site hints that the children from Beijing, China may tend to produce more recognizable drawings earlier in development.  
 
-In a second set of analyses, we aimed to understand the nature of this difference in recognizability across sites. We hypothesized that any differences in the recognizability of children's drawings across sites would be mediated by the amount of effort children expended while drawing or their tracing abilities.  We thus first examined how effort and tracing abilities varied across task, age, and geographical location. Figure \ref{fig:effort-covariates} shows three effort covariates - average intensity, number of strokes used, and time spent drawing -- measured for each drawing as a function of children's age, drawing task, and geographical site.  Children tended to spend more time drawing when asked to draw "the [rabbit] as it looks in the picture", and children from Beijing tended to spend more time drawing overall. In contrast, children's tracing abilities did not vary across geographical site: Figure \ref{fig:tracing} shows the average tracing score at each age at each site. While children's tracing abilities increased steadily with age, as in prior work [@long2021parallel], children from both sites produced equally good tracings.
+In a second set of analyses, we aimed to understand the nature of this difference in recognizability across sites. We initially hypothesized that any differences in the recognizability of children's drawings across sites would be mediated by the amount of effort children expended while drawing or their tracing abilities.  We thus first examined how effort and tracing abilities varied across task, age, and geographical location. Figure \ref{fig:effort-covariates} shows three effort covariates - average intensity, number of strokes used, and time spent drawing -- measured for each drawing as a function of children's age, drawing task, and geographical site.  Children tended to spend more time drawing provided with a picture cue and asked to draw "the [rabbit] as it looks in the picture", and children from Beijing tended to spend more time drawing overall. In contrast, children's tracing abilities did not vary across geographical site: Figure \ref{fig:tracing} shows the average tracing score at each age at each site. While children's tracing abilities increased steadily with age, as in prior work [@long2021parallel], children from both sites produced equally good tracings.
 
-We then included children's average tracing scores and effort covariates measured for each drawing (average intensity, number of strokes used, and time spent drawing) as fixed effects into a second linear mixed-effects model (described in Statistical Models). If the amount of effort spent or children's tracing abilities accounted the differences between sites that we observed, we reasoned that we should no longer observe a main effect of geographical location on drawing recognizability. Contra this hypothesis, however, we still observed a significant effect of geographical site (see Table 2), despite the fact that individual children's tracing abilities were strong predictors of how recognizable their drawings were. In addition, the amount of time a child spent drawing was in fact a significant negative predictor of recognizability -- indicating that the amount of effort that children expended did not necessarily result in a drawing that was more recognizable to others. 
-
-Thus, these results suggest that these two groups of children differ in their ability to produce recognizable drawings of object categories in a way that is not easily explainable by effort covariates or tracing abilities. In a third set of exploratory analyses, we examined how the developmental trajectory of the recognizability of children's drawings differ for different object categories. Intuitively, some object categories (e.g., cat) may be easier to draw than others (e.g., watch), resulting in shallower or steeper changes in recognizability over age. However, we had no strong hypotheses about how these trajectories might additionally vary with geographical locations. 
+We then included children's average tracing scores and effort covariates measured for each drawing (average intensity, number of strokes used, and time spent drawing) as fixed effects into a second generalized linear mixed-effects model (see Statistical Models). If the amount of effort spent or children's tracing abilities accounted the differences between sites that we observed, we reasoned that we should no longer observe a main effect of geographical location on drawing recognizability. Contra this hypothesis, however, we still observed a significant effect of geographical site (see Table 2), despite the fact that individual children's tracing abilities were strong predictors of how recognizable their drawings were. In addition, the amount of time a child spent drawing was in fact a significant negative predictor of recognizability -- indicating that the amount of effort that children expended did not necessarily result in a drawing that was more recognizable to others. Thus, these results suggest that these two groups of children differ in their ability to produce recognizable drawings of object categories in a way that is not easily explainable by effort covariates or tracing abilities. 
 
 ### Exploratory Analyses
+In a third set of exploratory analyses, we examined how the developmental trajectory of the recognizability of children's drawings differ for different object categories. Intuitively, some object categories (e.g., cat) may be easier to draw than others (e.g., watch), resulting in shallower or steeper changes in recognizability over age. However, we had no strong hypotheses about how these trajectories might additionally vary with geographical locations. 
+
 Figure \ref{fig:item-effects} shows the recognizability of children's drawings for each of the 12 categories a function of geographical location and children's age and reveal considerable variability.  For example, certain categories (e.g., cats and rabbits) were overall more difficult for children to depict such that they were distinct from one another, particularly for younger children. In addition, children from Beijing produced more recognizable drawings of certain categories at all ages -- including airplanes, birds, and rabbits -- while older children from San Jose produced more recognizable drawings of bikes.  Figure \ref{fig:example-drawings} shows recognizable, randomly sampled example drawings from 6-year-olds at each category, site, and condition. These exploratory analyses thus reveal systematic differences between object categories and geographical site that do not seem easily attributable to differences in effort.
 
 ```{r render-drawings, include=FALSE}
@@ -413,26 +415,26 @@ ggplot(cor_by_age_by_site, aes(age_numeric,mean, col = site)) +
 cleaned_names_full_model = c("Intercept","Task","Age","Site","Task*Age","Task*Site","Age*Site","Task*Age*Site")
 rownames(full_model_out$coefficients)<-cleaned_names_full_model
 
-# xtable(full_model_out$coefficients, digits=c(2,2,2,2,2,3),"Model coefficients from a  linear mixed mode predicting the recognizability of each drawing for the main experimental contrasts.")
+# xtable(full_model_out$coefficients, digits=c(2,2,2,2,3),"Model coefficients from a generalized linear mixed mode predicting the recognizability of each drawing for the main experimental contrasts.")
 ```
 
 \begin{table}[ht]
 \centering
-\begin{tabular}{rrrrrr}
+\begin{tabular}{rrrrr}
   \hline
- & Estimate & Std. Error & df & t value & Pr($>$$|$t$|$) \\
+ & Estimate & Std. Error & z value & Pr($>$$|$z$|$) \\ 
   \hline
-Intercept & 0.73 & 0.02 & 31.62 & 34.74 & 0.000 \\
-  Task & -0.02 & 0.02 & 17.29 & -0.87 & 0.397 \\
-  Age & 0.17 & 0.02 & 373.04 & 11.21 & 0.000 \\
-  Site & 0.05 & 0.02 & 385.12 & 2.39 & 0.017 \\
-  Task*Age & -0.02 & 0.01 & 2622.52 & -1.47 & 0.141 \\
-  Task*Site & -0.00 & 0.02 & 2631.48 & -0.20 & 0.842 \\
-  Age*Site & -0.00 & 0.02 & 388.66 & -0.06 & 0.951 \\
-  Task*Age*Site & 0.00 & 0.02 & 2639.46 & 0.21 & 0.834 \\
+Intercept & 1.39 & 0.16 & 8.51 & 0.000 \\ 
+  Task & 0.02 & 0.26 & 0.08 & 0.936 \\ 
+  Age & 1.16 & 0.14 & 8.59 & 0.000 \\ 
+  Site & 0.60 & 0.16 & 3.71 & 0.000 \\ 
+  Task*Age & -0.14 & 0.19 & -0.73 & 0.467 \\ 
+  Task*Site & -0.19 & 0.16 & -1.17 & 0.244 \\ 
+  Age*Site & 0.15 & 0.16 & 0.91 & 0.361 \\ 
+  Task*Age*Site & 0.06 & 0.16 & 0.38 & 0.706 \\ 
    \hline
 \end{tabular}
-\caption{Table 1. Model coefficients from a linear mixed mode predicting the recognizability of each drawing for the main experimental contrasts.}
+\caption{Model coefficients from a generalized linear mixed mode predicting the recognizability of each drawing for the main experimental contrasts.} 
 \end{table}
 
 ```{r output-models-2}
@@ -440,31 +442,30 @@ cleaned_names_full_model_with_effort = c("Intercept","Task","Age","Site","Est. t
 
 rownames(full_model_with_effort_out$coefficients)<-cleaned_names_full_model_with_effort
 
-# xtable(full_model_with_effort_out$coefficients, digits=c(2,2,2,2,2,3),"Model coefficients from a linear mixed mode predicting the recognizability of each drawing as a function the both the main experimental contrasts (task, site, and age) as well as several effort covariates and individual's estimates tracing abilities.")
+# xtable(full_model_with_effort_out$coefficients, digits=c(2,2,2,2,3),"Model coefficients from a generalized linear mixed mode predicting the recognizability of each drawing as a function the both the main experimental contrasts (task, site, and age) as well as several effort covariates and individual's estimates tracing abilities.")
 ```
-
 
 \begin{table}[ht]
 \centering
-\begin{tabular}{rrrrrr}
+\begin{tabular}{rrrrr}
   \hline
- & Estimate & Std. Error & df & t value & Pr($>$$|$t$|$) \\
+ & Estimate & Std. Error & z value & Pr($>$$|$z$|$) \\ 
   \hline
-Intercept & 0.72 & 0.02 & 34.02 & 37.49 & 0.000 \\
-  Task & -0.02 & 0.02 & 17.55 & -1.19 & 0.249 \\
-  Age & 0.14 & 0.02 & 376.68 & 9.30 & 0.000 \\
-  Site & 0.07 & 0.02 & 459.46 & 3.58 & 0.000 \\
-  Est. tracing score & 0.06 & 0.01 & 249.21 & 5.71 & 0.000 \\
-  Avg. intensity & 0.01 & 0.01 & 2839.40 & 1.90 & 0.058 \\
-  Draw duration & -0.03 & 0.01 & 1692.69 & -3.42 & 0.001 \\
-  Number of strokes & 0.03 & 0.01 & 2655.21 & 4.67 & 0.000 \\
-  Task*Age & -0.02 & 0.01 & 2623.63 & -1.72 & 0.086 \\
-  Task*Site & -0.01 & 0.02 & 2630.59 & -0.45 & 0.655 \\
-  Age*Site & -0.01 & 0.02 & 415.59 & -0.74 & 0.462 \\
-  Task*Age*Site & 0.00 & 0.02 & 2638.72 & 0.18 & 0.858 \\
+Intercept & 1.34 & 0.15 & 8.68 & 0.000 \\ 
+  Task & -0.04 & 0.26 & -0.16 & 0.873 \\ 
+  Age & 0.97 & 0.14 & 7.05 & 0.000 \\ 
+  Site & 0.80 & 0.16 & 5.04 & 0.000 \\ 
+  Est. tracing score & 0.35 & 0.07 & 4.82 & 0.000 \\ 
+  Avg. intensity & 0.06 & 0.02 & 2.47 & 0.013 \\ 
+  Draw duration & -0.25 & 0.03 & -7.58 & 0.000 \\ 
+  Number of strokes & 0.33 & 0.03 & 10.99 & 0.000 \\ 
+  Task*Age & -0.17 & 0.19 & -0.90 & 0.370 \\ 
+  Task*Site & -0.22 & 0.16 & -1.38 & 0.168 \\ 
+  Age*Site & 0.04 & 0.16 & 0.22 & 0.823 \\ 
+  Task*Age*Site & 0.07 & 0.16 & 0.43 & 0.665 \\ 
    \hline
 \end{tabular}
-\caption{Table 2. Model coefficients from a linear mixed mode predicting the recognizability of each drawing as a function the both the main experimental contrasts (task, site, and age) as well as several effort covariates and individual's estimates tracing abilities.}
+\caption{Model coefficients from a generalized linear mixed mode predicting the recognizability of each drawing as a function the both the main experimental contrasts (task, site, and age) as well as several effort covariates and individual's estimates tracing abilities.} 
 \end{table}
 
 
@@ -574,20 +575,21 @@ ggplot(item_effects_not_spread, aes(x=as.numeric(age_numeric), y=mean, color=sit
 ```
 
 # Discussion
-Here, we examined the consistency and variability in the developmental trajectory of children's drawings across two different drawing tasks and geographical locations. First, we found that asking children from a verbal cue("Can you draw a [cat]?") vs. from a picture cue ("Can you draw this [cat] as it looks in the picture?") had little effect on the recognizability of the drawings that children produced. While older children may have integrated specific visual information that was present in the photographs, in keeping with prior work [@bremmer1984prior], this did not seem to change how recognizable their drawings were to outside observers. Thus, these results suggest that younger children's drawings are unlikely to be constrained by their ability to recall specific, canonical exemplars of object categories when they are trying to draw them. 
+Here, we examined the developmental trajectory of the recognizability of children's drawings across two different drawing tasks and geographical locations. Overall, we found a consistent developmental trajectory from 4-9 years of age, replicating previous work using observational datasets [@long2021parallel] In addition, we found that asking children to draw categories when provided witha verbal cue ("Can you draw a [cat]?") vs.a picture cue ("Can you draw this [cat] as it looks in the picture?") had little effect on the recognizability of the drawings that children produced. While older children may have integrated specific visual information that was present in the photographs, in keeping with prior work [@bremmer1984prior], this did not seem to change how recognizable their drawings were to outside observers. Thus, these results suggest that younger children's drawings are unlikely to be constrained by their ability to recall specific, canonical exemplars of object categories when they are trying to draw them. 
 
-Instead, we found that the recognizability of children's drawings differed between our two different geographical sites -- Beijing, China and San Jose, USA  Why might this be the case?  Our initial hypothesis was that children who had daily practice with a non-orthographic, complex writing system would exhibit greater dexterity in our tracing assessment task -- and that this dexterity could be a factor in how recognizable their drawings were.  However, children across the two sites showed equivalent shape tracing abilities -- despite the fact that children's individual tracing scores were strong predictors of the recognizability of the drawings that they produced. Thus, this finding both confirms the idea that children's visuomotor abilities strongly influence the drawings they produce yet further suggests that it is far from the only factor that does so.
+Instead, we found that the recognizability of children's drawings differed between our two different geographical sites -- Beijing, China and San Jose, USA  Why might this be the case?  Our initial hypothesis was that children who had daily practice with a non-orthographic, complex writing system would exhibit greater dexterity in our tracing assessment task -- and that this dexterity could be a factor in how recognizable their drawings were.  However, children across the two sites showed equivalent shape tracing abilities, despite the fact that children's individual tracing scores were strong predictors of the recognizability of the drawings that they produced. Thus, this finding both confirms the idea that children's visuomotor abilities strongly influence the drawings they produce yet further suggests that it is far from the only factor that does so.
 
-A second possibility that recognizability may have differed across sites is that children recruited at preschools near Beijing were simply more engaged with the task than children recruited at museums near San Jose, USA. A more academic context could have created an environment in which children felt incentivized to spend more effort on their drawings. However, our measures of children's effort (e.g., amount of time spent drawing) did not account for differences in recognizability across sites.  Furthermore, we saw systematic differences in the object categories that were more or less recognizable across sites, which is not well-explained by this account.  
+A second possibility that recognizability may have differed across sites is that children recruited at preschools near Beijing were simply more engaged with the task than children recruited at museums near San Jose, USA. A more academic context could have created an environment in which children felt incentivized to spend more effort on their drawings. However, our measures of children's effort (e.g., amount of time spent drawing) did not account for differences in recognizability across sites. Furthermore, we saw systematic differences in the object categories that were more or less recognizable across sites, which is not well-explained by this account.  
 
-While a long literature has sought to examine variation in cognitive abilities across cultural contexts, we note that this is there is substantial variation within different geographical locations and countries that often goes unmeasured.  Drawings from children within the same country -- or even area code --  may differ in the very same ways children's drawings differ in this dataset. For example,  children across could reasonably differ in the amount of practice they have drawing common object categories. If so, then children who spend more time drawing may simply have more practice communicating about the diagnostic features of different object categories. In future work, surveys that assesses the amount of time that children at these two sites -- as well as many others -- spend drawing outside of these experimental contexts could address this hypothesis.  
+These results of course do not preclude the possibility that children's drawings differed across these two conditions or geographical sites in other interesting ways beyond their recognizability. Indeed, some work has shown that young children across different cultural contexts tend to produce different tadpole drawings of varying heights and with different amounts of detail [@gernhardt2015cultural] and place a horizon line in systematically different locations when drawing scenes [@senzaki2014holistic]. Thus, finer-grained measurements of these drawings could reveal differences -- with respect to the exact visual features that children chose to include, the strategies they employed while drawing, or the order in which they chose to draw certain elements of these categories.  We have thus made this dataset and the resulting code publicly available for these exploratory analyses.
 
-However, these results of course do not preclude the possibility that children's drawings differed across these two conditions or geographical sites in other interesting ways beyond their recognizability. Finer-grained measurements of these drawings could reveal differences with respect to the exact visual features that children chose to include, the strategies they employed while drawing, or the order in which they chose to draw certain elements of these categories.  We have thus made this dataset and the resulting code publicly available for these exploratory analyses. 
-A natural question for future work concerns the relationship between the degree to which children with difference kinds of experience might also show differences in their ability to recognize drawings of object categories. In a U.S. based population, prior work found that older children not only produce more recognizable drawings of object categories but tend to be better skilled at recognizing other children's drawings [@long2021parallel]. Thus, if children in different environmental contexts tend to spend more time practicing drawing, these children may also be more skilled at recognizing drawings of object categories and perhaps explicitly identifying the distinctive visual features of these categories.
+However, while many have sought to examine variation across different cultural contexts in children's drawings [@winner1989can] or cognitive abilities that may be relevant to children's drawing abilities -- including object recognition [@kuwabara2016cultural] -- we note that this is there is substantial variation within different geographical locations and countries that often goes unmeasured [@amir2020cross].  Indeed, this unmeasured variation within sites may lead to the low replicability of some cross-cultural findings [@carstensen2021]. For example, some work has suggested that the distinction between wheat vs. rice farming traditions explains substantial variation in cultural practices within China [@talhelm2014large]. We are caution against a strong interpretation of the observed site differences, and we believe that drawings from children within the same country -- or even area code --  may differ in the very same ways children's drawings differed in this dataset. For example, children across could reasonably differ in the amount of practice they have drawing common object categories. If so, then children who spend more time drawing may simply have more practice communicating about the diagnostic features of different object categories. In future work, surveys that assesses the amount of time that children in many different communities spend drawing outside could address this hypothesis.  
 
-Furthermore, while this work moves beyond investigating the drawings of children at a single geographical location, these children are still in many ways non-representative of the general population. For example, children in more rural populations may spend considerably less time both consuming and producing drawings of object categories. Thus, these developmental trajectories could thus vary in several ways that are not captured by the slice of experience represented in the the present dataset.
+Instead, a natural question for future work concerns the relationship between the degree to which children with difference kinds of experience might also show differences in their ability to recognize drawings of object categories. In a U.S. based sample, prior work found that older children not only produce more recognizable drawings of object categories but tend to be better skilled at recognizing other children's drawings [@long2021parallel]. Thus, if children in different environmental contexts tend to spend more time practicing drawing, these children may also be more skilled at recognizing drawings of object categories and perhaps explicitly identifying the distinctive visual features of these categories.
 
-Nonetheless, these results take a first step towards characterizing the consistency and variability in the developmental trajectory of children's drawings across development  two different tasks and geographical locations.  We propose that the systematic collection of digital drawings across many different populations, ages, and tasks has potential to shed light on the processes that result in the development of children's drawing abilities.  
+Finally, while this work moves beyond investigating the drawings of children at a single geographical location, these children are still in many ways non-representative of the general population. For example, children in more rural populations may spend considerably less time both consuming and producing drawings of object categories. Thus, these developmental trajectories could thus vary in several ways that are not captured by the populations represented in the the present dataset. 
+
+Nonetheless, these results take a first step towards characterizing the consistency and variability in the developmental trajectory of children's drawings across development, two different tasks, and geographical locations.  We propose that the systematic collection of digital drawings across many different populations, ages, and tasks has potential to shed light on the processes that result in the development of children's drawing abilities.  
 
 # Acknowledgements  
 We thank Yi Feng and Megan Merrick for assistance with data collection, with whom this project would have not been possible. We also gratefully acknowledge the San Jose Children's Discovery Museum for their collaboration. We are also thankful to all of the parents at XX and XX preschool whose children participated. We also thank the members of the Stanford Language and Cognition lab for their feedback. This work was funded by an NSF SPRF-FR Grant \#1714726 to BLL and a Jacobs Foundation Fellowship to MCF. 

@@ -60,6 +60,11 @@ library(lmerTest)
 library(lme4)
 library(xtable)
 library(viridis)
+
+
+knitr::opts_chunk$set(fig.crop = FALSE, 
+                      fig.path='figs/', echo=FALSE, warning = FALSE, 
+                      cache=FALSE, message = FALSE, sanitize = TRUE)
 ```
 
 As humans, we have many powerful tools to externalize what we know, including language and gesture. 
@@ -92,9 +97,6 @@ Most empirical studies on children's drawings have been conducted exclusively on
 Finally, we assessed the degree to which visuomotor development accounts for observed developmental changes in drawing recognizability. While it is clear that visuomotor control influences how and what we can draw, little work has directly related meausres of visuomotor control to drawing outcomes. To do so, we measured each child's visuomotor control via a shape tracing task on a table and related these measurements of tracing accuracy to the recognizability of the drawings that each child produced. 
 
 In the present study, we thus collect shape tracings and digital drawings of visual concepts from 4-9 year-old children in two different countries using both picture cues and verbal cues.  In doing so, we make three major contributions to our understanding of the development of children's drawings. First, we replicate our prior findings  [@long2021parallel] that the recognizability of children's drawings increases steadily throughout this age range (4-9 years). Second, we test the degree to which working memory constraints might account for these developmental changes. In keeping with accounts of naïve realism and contra a strong account of working memory limitations, we predicted that only older children would be able to use the visual information present in the canonical photographs to improve their drawings, Third, we test the generalizability of our findings across two different countries. We predicted that we would see convergence in the development of drawing abilities across both geographical sites, with older children becoming progressively better at producing recognizable drawings. In addition, we predicted that most of the variance across geographical sites in drawing ability would be explainable by differences in visuomotor control, operationalized as performance on a shape tracing task; these primary analyses were pre-registered at https://osf.io/qymjr/.
-
-
-<!-- Overall, we replicated prior work [@long2021parallel], showing strong and consistent developmental changes in the recognizability of children's drawings across development across both geographical sites. In addition, children of all ages produced equally recognizable drawings across both drawing tasks, suggesting that working memory limitations are not amoung the primary factors that influence the recognizability of children's drawings. Finally, we found that children recruited  -->
 
 
 # Methods
@@ -138,7 +140,7 @@ all_meta_cleaned <- meta_cdm %>%
   full_join(meta_thu) 
 ```
 
-\
+
 ```{r load-tracing}
 # import, standardized spliced session_ids, and join back together
 # tracing IDs are read in by session_ids, so need these to join with metadata
@@ -347,10 +349,7 @@ Figure \ref{fig:item-effects} shows the recognizability of children's drawings f
 #                       (1 | unique_ids) +
 #                       (1 | category),
 #       data = d)
-# 
-# # frustratingly can't get anything with random slopes to converge!
 # drawing_time_out = summary(drawing_time)
-
 ```
 
 ```{r compile-main-results}
@@ -383,33 +382,6 @@ ggplot(cor_by_age_by_site_by_cond, aes(age_numeric,mean, col = site)) +
 ```
 
 
-```{r site-difference, include=FALSE, eval=FALSE, fig.env="figure", out.width = "\\textwidth", fig.pos = "H", fig.align = "center", fig.width=4, fig.height=4, fig.cap = "Proportion of drawings recognized as a function of the age of the child who completed each drawing and the geographical site they were tested at (San Jose vs. Beijing). Individual data points represent drawings within each condition by an individual participant and are slightly jittered. Error bars show bootstrapped 95 percent confidence intervals."}
-cor_by_age_by_site <- d %>%
-  group_by(unique_ids,category,age_numeric, site) %>%
-  summarize(avg_cor = mean(prop_correct)) %>%
-  group_by(age_numeric, site) %>%
-  multi_boot_standard(col = "avg_cor")
-
-cor_by_age_by_site_by_indiv <- d %>%
-  group_by(unique_ids,category,age_numeric, site) %>%
-  summarize(avg_cor = mean(prop_correct))
-
-ggplot(cor_by_age_by_site, aes(age_numeric,mean, col = site)) +
-  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) +
-  geom_point(data = cor_by_age_by_site_by_indiv, aes(x=age_numeric, y=avg_cor), position=position_jitterdodge(jitter.width = NULL,
-  jitter.height = .001,
-  dodge.width = 0.2,
-  seed = 123), alpha=.05) +
-  theme_few(base_size = base_size_chosen) +
-  labs(x='Age (in years)', y='Proportion drawings recognized') +
-  ylim(-.01,1.1) +
-  geom_smooth(span=1, alpha=.1) +
-  scale_color_viridis(discrete=TRUE, name="", option='B', begin=0, end=.4) +
-  theme(legend.position = 'bottom') +
-  geom_hline(yintercept = 1/12, linetype="dashed", color="grey")
-
-
-```
 
 ```{r output-models-1}
 cleaned_names_full_model = c("Intercept","Task","Age","Site","Task*Age","Task*Site","Age*Site","Task*Age*Site")
@@ -490,7 +462,7 @@ avg_intensity <- d %>%
 ```
 
 
-```{r plot-effort}
+```{r plot-effort, include=FALSE}
 ## Make compiled plot of descriptives
 base_size_chosen=14 # size of text in plots
 smooth_alpha=.2
@@ -537,15 +509,16 @@ tracing_scores <- tracing_scores_indiv %>%
 ```{r tracing, fig.env="figure", out.width = "\\textwidth", fig.pos = "H", fig.align = "center", fig.width=8, fig.height=4, fig.cap = "Average tracing scores across age and site; each dot represents an average tracing score obtained for each participant and are slightly jittered. Error bars represent bootstrapped 95 percent confidence intervals."} 
 ggplot(tracing_scores, aes(x=age_numeric,y=mean, col=site)) +
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
-  geom_jitter(data = tracing_scores_indiv, aes(x=age_numeric, y=avg_tracing_score), width=.2, height=.05, alpha=.5) +
+  geom_jitter(data = tracing_scores_indiv, aes(x=age_numeric, y=avg_tracing_score), width=.2, height=.01, alpha=.5) +
   theme_few(base_size = base_size_chosen) +
   labs(x='Age', y='Tracing score') +
   theme(legend.position = "none") +
   geom_smooth(col='grey', span = 10,alpha=smooth_alpha)  +
   facet_grid(~site) +
-  ylim(0,4) +
+  ylim(-.1,4.1) +
   scale_color_viridis(discrete=TRUE, name="", option='B', begin=0, end=.4)
 ```
+
 ```{r example-drawings, fig.env = "figure", out.width="100%", fig.pos = "H", fig.label="exampledetections", fig.cap = "Randomly sampled, highly recognized drawings for each task, category, and geographical site made by 6-year-old children."}
 knitr::include_graphics("figs/example_drawings.png")
 ```
@@ -583,7 +556,7 @@ A second possibility that recognizability may have differed across sites is that
 
 These results of course do not preclude the possibility that children's drawings differed across these two conditions or geographical sites in other interesting ways beyond their recognizability. Indeed, some work has shown that young children across different cultural contexts tend to produce different tadpole drawings of varying heights and with different amounts of detail [@gernhardt2015cultural] and place a horizon line in systematically different locations when drawing scenes [@senzaki2014holistic]. Thus, finer-grained measurements of these drawings could reveal differences -- with respect to the exact visual features that children chose to include, the strategies they employed while drawing, or the order in which they chose to draw certain elements of these categories.  We have thus made this dataset and the resulting code publicly available for these exploratory analyses.
 
-However, while many have sought to examine variation across different cultural contexts in children's drawings [@winner1989can] or cognitive abilities that may be relevant to children's drawing abilities -- including object recognition [@kuwabara2016cultural] -- we note that this is there is substantial variation within different geographical locations and countries that often goes unmeasured [@amir2020cross].  Indeed, this unmeasured variation within sites may lead to the low replicability of some cross-cultural findings [@carstensen2021]. For example, some work has suggested that the distinction between wheat vs. rice farming traditions explains substantial variation in cultural practices within China [@talhelm2014large]. We are caution against a strong interpretation of the observed site differences, and we believe that drawings from children within the same country -- or even area code --  may differ in the very same ways children's drawings differed in this dataset. For example, children across could reasonably differ in the amount of practice they have drawing common object categories. If so, then children who spend more time drawing may simply have more practice communicating about the diagnostic features of different object categories. In future work, surveys that assesses the amount of time that children in many different communities spend drawing outside could address this hypothesis.  
+However, while many have sought to examine variation across different cultural contexts in children's drawings [@winner1989can] or cognitive abilities that may be relevant to children's drawing abilities -- including object recognition [@kuwabara2016cultural] -- we note that this is there is substantial variation within different geographical locations and countries that often goes unmeasured [@amir2020cross].  Indeed, this unmeasured variation within sites may lead to the low replicability of some cross-cultural findings [@carstensen2021]. For example, some work has suggested that the distinction between wheat vs. rice farming traditions explains substantial variation in cultural practices within China [@talhelm2014large]. We thus caution against a strong interpretation of the observed site differences, as we believe that drawings from children within the same country -- or even area code --  may differ in the very same ways children's drawings differed in this dataset. For example, children across could reasonably differ in the amount of practice they have drawing common object categories. If so, then children who spend more time drawing may simply have more practice communicating about the diagnostic features of different object categories. In future work, surveys that assesses the amount of time that children in many different communities spend drawing outside could address this hypothesis.  
 
 Instead, a natural question for future work concerns the relationship between the degree to which children with difference kinds of experience might also show differences in their ability to recognize drawings of object categories. In a U.S. based sample, prior work found that older children not only produce more recognizable drawings of object categories but tend to be better skilled at recognizing other children's drawings [@long2021parallel]. Thus, if children in different environmental contexts tend to spend more time practicing drawing, these children may also be more skilled at recognizing drawings of object categories and perhaps explicitly identifying the distinctive visual features of these categories.
 

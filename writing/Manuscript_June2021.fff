@@ -9,7 +9,7 @@
 \ifnextchar[{\eatarg}{}
 [H]
 
-{\centering \includegraphics[width=\textwidth]{Manuscript_June2021_files/figure-latex/main-results-1}
+{\centering \includegraphics[width=\textwidth]{figs/main-results-1}
 
 }
 
@@ -21,7 +21,7 @@
 \ifnextchar[{\eatarg}{}
 [H]
 
-{\centering \includegraphics[width=\textwidth]{Manuscript_June2021_files/figure-latex/effort-covariates-1}
+{\centering \includegraphics[width=\textwidth]{figs/effort-covariates-1}
 
 }
 
@@ -33,7 +33,7 @@
 \ifnextchar[{\eatarg}{}
 [H]
 
-{\centering \includegraphics[width=\textwidth]{Manuscript_June2021_files/figure-latex/tracing-1}
+{\centering \includegraphics[width=\textwidth]{figs/tracing-1}
 
 }
 
@@ -52,7 +52,7 @@
 \ifnextchar[{\eatarg}{}
 [H]
 
-{\centering \includegraphics[width=\textwidth]{Manuscript_June2021_files/figure-latex/item-effects-1}
+{\centering \includegraphics[width=\textwidth]{figs/item-effects-1}
 
 }
 

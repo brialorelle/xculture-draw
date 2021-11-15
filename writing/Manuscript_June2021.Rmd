@@ -276,9 +276,8 @@ We used a combination of deep convolutional neural network (CNN) features and lo
 To encode the high-level visual features of each drawing, we passed each drawing into VGG-19 [@simonyan2014very], a deep CNN architecture that had been pre-trained on Imagenet classification and implemented in PyTorch [@paszke2017automatic].
 We extracted the feature representation of this drawing in the second-to-last layer of this network (FC6). 
 Feature representations in this layer consist of flat 4096-dimensional vectors, to which we applied channel-wise normalization. 
-Next, we used these features to train a 12-way logistic classifier with L2 regularization (tolerance = .1, regularization = .1), and used this classifier to predict the category label for each drawing.
+Next, we used these features to train a leave-one-out 12-way logistic classifier with L2 regularization (tolerance = .1, regularization = .1), and used this classifier to predict the category label for each drawing.
 To ensure a balanced distribution of drawings appearing in the training set, we randomly undersampled such that there was an equal number of drawings for each combination of geographical site (San Jose, Beijing) and the 12 categories. 
-\textbf{jefan query: Here we describe the training data distribution, but not the test set? What kind of train/test splitting procedure did we use here (LOO? 80/20 CV?)}
 No additional metadata about the age of the child who produced each sketch was provided to the model. 
 This procedure was repeated for each drawing in the dataset, yielding a binary recognition score for each drawing.
 

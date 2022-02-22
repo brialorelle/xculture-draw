@@ -1,4 +1,10 @@
-
+.auth.txt
+.auth.json
+.auth.py
+.credentials.py
+auth.json
+auth.py
+credentials.py
 auth.txt
 auth_info.txt
 analysis/auth.txt

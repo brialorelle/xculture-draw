@@ -364,6 +364,16 @@ jsPsych.plugins['jspsych-stroke-kid-annotations'] = (function() {
       $("#whiteOut").fadeIn(100);
       unintelligibleSubmittedTimestamp = Date.now();
 
+
+      $('#myForm').on('keyup keypress', function(e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 13) { 
+          e.preventDefault();
+          console.log('enter');
+          return false;
+        }
+      });
+      
       $("#submit").on("click", submitOther);
     }); // close 'other' label function
 

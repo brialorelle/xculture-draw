@@ -1,11 +1,11 @@
 // ----- SWITCH THESE FLAGS depending on which 'game' we are running -----
-// options: 'small_animals', 'big_animals', 'objects', or 'vehicles' (or 'generateIntro')
-const whichGame = 'small_animals'
+// options: 'animals', 'small_objects', 'big_objects', or 'vehicles' (or 'generateIntro')
+const whichGame = 'animals'
 
 // IMPORTANT NOTE! If you change the above, you need to restart app.js in terminal
 // ALSO! Make sure that whichGame matches in setup.js so that the catchTrial matches
 
-const interationName = 'pilot_3' //'pilot_2'
+const interationName = 'debugging' //'pilot_2'
 // -----
 
 function sendData(data) {
@@ -18,8 +18,8 @@ function sendData(data) {
 // Define trial object with boilerplate using global variables from above
 function Trial() {
 	this.type = 'jspsych-stroke-kid-annotations',
-  this.dbname = 'kiddraw_annotations';
-  this.colname = 'kiddraw_annotations'; 
+  this.dbname = 'devphotodraw';
+  this.colname = 'devphotodraw'; 
   this.iterationName = interationName; 
 };
 
@@ -37,8 +37,8 @@ function setupGame() {
     var sessionID = urlParams.get('SESSION_ID')      // ID unique to the particular submission
 
     // These are flags to control which trial types are included in the experiment
-    const includeIntro = true;
-    const includeQuiz = true;
+    const includeIntro = false;
+    const includeQuiz = false;
     const includeExitSurvey = true;
     const includeGoodbye = true;
 
@@ -114,18 +114,18 @@ function setupGame() {
         type: 'jspsych-stroke-kid-annotations',
         catch: true,
       });
-    } else if (whichGame == 'small_animals') {
+    } else if (whichGame == 'animals') {
       // real catchTrial used for checking accuracy performance of real participants!
       var catchTrial = _.extend({}, bird_example, new Trial, {
         type: 'jspsych-stroke-kid-annotations',
         catch: true,
       });
-    } else if (whichGame == 'big_animals') {
+    } else if (whichGame == 'small_objects') {
       var catchTrial = _.extend({}, bear_example, new Trial, {
         type: 'jspsych-stroke-kid-annotations',
         catch: true,
       });
-    } else if (whichGame == 'objects') {
+    } else if (whichGame == 'big_objects') {
       var catchTrial = _.extend({}, lamp_example, new Trial, {
         type: 'jspsych-stroke-kid-annotations',
         catch: true,

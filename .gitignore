@@ -5,6 +5,9 @@
 auth.json
 auth.py
 credentials.py
+auth.json
+auth.py
+credentials.py
 auth.txt
 auth_info.txt
 analysis/auth.txt
@@ -22,6 +25,7 @@ writing/_submission_docs/*
 #  ignore old scripts
 analysis/_main_analyses_only_cdm_srcd/*
 analysis/_photodraw_pilot/*
+node_modules/
 
 analysis/step1_get_drawings/CDM_Drawings/photodraw2/_old/*
 

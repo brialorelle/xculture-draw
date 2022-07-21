@@ -1,22 +1,22 @@
 // ----- SWITCH THESE FLAGS depending on which 'game' we are running -----
-// options: 'small_animals', 'big_animals', 'objects', or 'vehicles' (or 'generateIntro')
-const whichGame = 'small_animals'
+// options: 'animals', 'small_objects', 'big_objects', or 'vehicles' (or 'generateIntro')
+const whichGame = 'animals'
 
 // IMPORTANT NOTE! If you change the above, you need to restart app.js in terminal
 // ALSO! Make sure that whichGame matches in setup.js so that the catchTrial matches
 
-if (whichGame == 'small_animals') {
-  var db_name = 'kiddraw_annotations_small_animals'
-  var col_name = 'kiddraw_annotations_small_animals'
-} else if (whichGame == 'big_animals') {
-  var db_name = 'kiddraw_annotations_big_animals'
-  var col_name = 'kiddraw_annotations_big_animals'
-} else if (whichGame == 'objects') {
-  var db_name = 'kiddraw_annotations_objects'
-  var col_name = 'kiddraw_annotations_objects'
+if (whichGame == 'animals') {
+  var db_name = 'devphotodraw_animals'
+  var col_name = 'devphotodraw_animals'
+} else if (whichGame == 'small_objects') {
+  var db_name = 'devphotodraw_small_objects'
+  var col_name = 'devphotodraw_small_objects'
+} else if (whichGame == 'big_objects') {
+  var db_name = 'devphotodraw_big_objects'
+  var col_name = 'devphotodraw_big_objects'
 } else if (whichGame == 'vehicles') {
-  var db_name = 'kiddraw_annotations_vehicles'
-  var col_name = 'kiddraw_annotations_vehicles'
+  var db_name = 'devphotodraw_vehicles'
+  var col_name = 'devphotodraw_vehicles'
 };
 // -----
 
@@ -122,7 +122,7 @@ function checkPreviousParticipant(workerId, callback) {
     projection: { '_id': 1 }
   };
   sendPostRequest(
-    'http://localhost:8000/db/exists',
+    'http://localhost:8010/db/exists',
     { json: postData },
     (error, res, body) => {
       try {
@@ -146,7 +146,7 @@ function checkPreviousParticipant(workerId, callback) {
 function initializeWithTrials(socket) {
   var gameid = UUID();
   var colname = col_name; 
-  sendPostRequest('http://localhost:8000/db/getbatchstims', {
+  sendPostRequest('http://localhost:8010/db/getbatchstims', {
     json: {
       dbname: 'stimuli',
       colname: colname,
@@ -184,7 +184,7 @@ var UUID = function() {
 
 var writeDataToMongo = function(data) {
   sendPostRequest(
-    'http://localhost:8000/db/insert',
+    'http://localhost:8010/db/insert',
     { json: data },
     (error, res, body) => {
       if (!error && res.statusCode === 200) {

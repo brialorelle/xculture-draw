@@ -1,0 +1,356 @@
+---
+title: "clip_classifications"
+author: "Bria Long"
+date: '2022-05-17'
+output: html_document
+---
+
+
+## Load libraries
+```{r}
+library(tidyverse)
+library(here)
+library(assertthat)
+library(langcog)
+library(ggthemes)
+library(knitr)
+library(lmerTest)
+library(lme4)
+
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Load data
+### Compiled classification data
+```{r load-classifications}
+# classification_data <- read.csv(here::here('data/compiled/compiled_classifications/Classification_Outputs2760.csv')) %>%
+#   as_tibble() %>%
+#   mutate(age_numeric = age) %>%
+#   mutate(age = paste('age',age,sep="")) %>%
+#   mutate(age = as.factor(age)) %>%
+#   mutate(category = target_label) %>% 
+#   dplyr::select(-X, -X.1, -index) %>%
+#   mutate(site = case_when( is.na(str_locate(session_id,'photodraw_e2')[,1]) ~ "THU", 
+#                            !is.na(str_locate(session_id,'photodraw_e2')[,1]) ~ "CDM")) %>%
+#   mutate(site = as.factor(site)) 
+```
+
+### Load metadata
+```{r}
+# load and clean up "category" for tracing trials
+all_meta <- read.csv(here::here('data/compiled/metadata/final_merged_metadata.csv')) %>%
+    mutate(category = as.character(category)) %>%
+    mutate(category = case_when(category == 'this square' ~ 'square',
+                                category == 'this shape' ~ 'shape',                                
+                                TRUE ~ as.character(category))) 
+
+# subIDs are unique identifier in recognition data for THU, session_ids in CDM data
+meta_thu <- all_meta %>%
+  filter(site=='THU') %>%
+  mutate(unique_ids = subID) %>%
+  mutate(draw_duration = draw_duration / 1000) # in ms for thu, whoops
+
+meta_cdm <- all_meta %>%
+  filter(site=='CDM') %>%
+  mutate(unique_ids = session_id) 
+
+## unique IDs are now the identifier which will be used to join with machine/human recognition data
+all_meta_cleaned <- meta_cdm %>%
+  full_join(meta_thu) 
+
+```
+
+```{r}
+all_meta_cleaned <- all_meta_cleaned %>%
+  select(-age) %>%
+  rename(age = age_numeric)
+```
+
+### Load clip classifications
+```{R}
+clip_features <- read.csv(here::here('data/compiled/clip_classifications/CLIP_FEATURES_kid_photodraw_compiled_drawing_cue.csv'), header=TRUE) %>%
+  as_tibble() 
+
+clip_meta <- read.csv(here::here('data/compiled/clip_classifications/CLIP_METADATA_batch32_kid.csv')) %>%
+  as_tibble() %>%
+  rename(category = label, session_id = session)  
+
+all_clip = clip_features %>%
+  right_join(clip_meta, by=c('X')) 
+```
+
+#### Make long form clip data
+```{r}
+clip_long <- all_clip %>%
+  rename(kid_age = age, site = condition, unique_ids = session_id) %>%
+  select(-X) %>%
+  pivot_longer(cols = cat:tree, names_to  = "guessed_category", values_to ="prob")  %>%
+  mutate(guessed_category = factor(guessed_category)) %>%
+  mutate(category = factor(category))
+```
+
+```{r}
+# test_image = 'P_airplane_sketch_age8_IPAD2_THU8F12.png'
+# test_session_id = 'IPAD2_THU8F12'
+
+# test_image_clip <- all_clip %>%
+  # filter(session_id == test_session_id & category=='airplane')
+```
+
+```{r}
+clip_by_image <- clip_long %>%
+  group_by(kid_age, unique_ids, category) %>%
+  summarize(max_prob = max(prob), clip_category = guessed_category[prob == max_prob]) %>%
+  mutate(correct_or_not = (category == clip_category)) %>%
+  left_join(all_meta_cleaned)
+```
+
+```{r}
+count_images <- clip_by_image %>% 
+  group_by(kid_age, category) %>%
+  summarize(count = n())
+
+check <- clip_by_image %>% 
+  filter(is.na(condition)) 
+  
+sum(count_images$count) # sanity
+```
+
+
+```{r}
+clip_target_category_prob_by_age_by_category <- clip_long %>%
+  filter(category == guessed_category) %>%
+  group_by(category, kid_age) %>%
+  multi_boot_standard(col = 'prob')
+
+target_category_prob_by_age <- clip_target_category_prob_by_age_by_category %>%
+  group_by(kid_age) %>%
+  multi_boot_standard(col = 'mean')
+```
+
+
+```{r}
+clip_correct_category_by_age <- clip_by_image %>%
+   mutate(age_numeric = as.double(kid_age)) %>%
+  mutate(age_numeric = case_when(age_numeric == 10 ~ 9, # merge 2 10-year-olds into THU data for 9-year-olds
+                                 TRUE ~ age_numeric)) %>%
+  group_by(category, age_numeric) %>%
+  multi_boot_standard(col = 'correct_or_not') 
+```
+
+```{r}
+ggplot(clip_correct_category_by_age, aes(x=age_numeric, y=mean, col=age_numeric)) +
+  geom_pointrange(aes(y=mean, ymin = ci_lower, ymax = ci_upper), alpha=.3)+
+  geom_point(alpha=.6) +
+  # geom_line(data = clip_correct_category_by_age, alpha=.4, aes(group=category))+
+  geom_smooth(alpha=.01, color='grey', span=2) +
+  labs(x='Age of child drawing (yrs)', y='CLIP classification accuracy') +
+  theme_few() + 
+  scale_x_continuous(breaks = seq(2,10,1)) + 
+  scale_color_viridis(option="D", breaks=seq(2,10,1)) +
+  theme(legend.position= 'none') +
+  facet_wrap(~category)
+
+```
+
+### Load human classification data
+```{r}
+humans <- read.csv(here::here('data/compiled/recognition_ratings/compiled_human_recognition.csv')) 
+  
+humans_merged <- humans %>%
+  group_by(unique_ids, category, image_name_short) %>% # group by each drawing of each category
+  summarize(num_correct = mean(correct_or_not)) %>%
+  left_join(clip_by_image, by=c('unique_ids','category')) %>% # join with classification data 
+  filter(!is.na(age))
+```
+
+
+```{r}
+ggplot(humans_merged, aes(x=correct_or_not, y=num_correct)) +
+  geom_jitter(alpha=.2, width=.1, height=.1) +
+  geom_smooth(method='lm') +
+  ylab('human recognition') +
+  xlab('clip model recognition')+
+  theme_few()
+```
+
+```{r}
+by_category <- humans_merged %>%
+  group_by(category) %>%
+  summarize(humans_pc = mean(num_correct), model_pc = mean(correct_or_not, na.rm=TRUE))
+
+ggplot(by_category, aes(x=model_pc, y=humans_pc, label=category)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  ylab('human recognition') +
+  xlab('model recognition') +
+  theme_few() +
+  ggrepel::geom_label_repel()
+```
+
+
+### Correlates humans vs vgg classifications 
+```{r}
+# cor.test(humans_merged$num_correct, humans_merged$target_label_prob)
+cor.test(humans_merged$num_correct, as.numeric(as.logical(humans_merged$correct_or_not)))
+```
+
+
+
+```{r}
+
+category_by_age_by_cond <- humans_merged %>%
+  group_by(category, age, condition) %>%
+  summarize(humans_pc = mean(num_correct), model_pc = mean(correct_or_not, na.rm=TRUE))  %>%
+  mutate(diff = (model_pc - humans_pc))
+  
+```
+
+```{r}
+ggplot(category_by_age_by_cond, aes(x=model_pc, y=humans_pc,color=age, label=category))+
+  geom_point() +
+  ylim(0,1) +
+  xlim(0,1) +
+  theme_few() +
+  theme(aspect.ratio = 1) +
+  facet_wrap(~category) +
+  scale_color_viridis_c() +
+  geom_abline(xintercept=0, color='grey')
+  ggrepel::geom_label_repel(data = category_by_age_by_cond %>% filter(diff>.1), label.size=.1, max.overlaps=20) 
+```
+
+
+```{r}
+cor_by_age_by_site_by_cond <- humans_merged %>%  
+  group_by(unique_ids,category,condition,age, site) %>%
+  summarize(avg_cor = mean(correct_or_not)) %>%
+  group_by(age,condition, site) %>%
+  multi_boot_standard(col = "avg_cor") %>%
+  mutate(who = "model")
+
+cor_by_age_by_site_by_cond_humans <- humans_merged %>%  
+  group_by(unique_ids,category,condition,age, site) %>%
+  summarize(avg_cor = mean(num_correct)) %>%
+  group_by(age,condition, site) %>%
+  multi_boot_standard(col = "avg_cor") %>%
+  mutate(who = 'humans')
+
+humans_and_models <- cor_by_age_by_site_by_cond %>%
+  full_join(cor_by_age_by_site_by_cond_humans)
+
+```
+
+```{r}
+summary(lmer(data=humans_merged, correct_or_not ~ condition*age + (1|unique_ids) + (1|category)))
+```
+
+```{r}
+summary(lmer(data=humans_merged, num_correct ~ condition*age + (1|unique_ids) + (1|category)))
+
+```
+
+
+```{r}
+base_size_chosen=12; smooth_alpha=.2
+ggplot(humans_and_models, aes(age,mean, col = condition)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) +
+  theme_few(base_size = base_size_chosen) + 
+  labs(x='Age', y='Classification accuracy') +
+  ylim(0,1) + 
+  geom_smooth(span=10, alpha=.2) +
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  facet_grid(who~site)
+```
+
+## How well does the model do on the images that humans unanimously recognize?
+```{r}
+easiest_to_recognize <- humans_merged %>%
+  filter(num_correct == 1) %>%
+  group_by(category) %>%
+  summarize(model_correct = mean(correct_or_not), num_images= n()) %>%
+  mutate(category = fct_reorder(category, -model_correct))
+```
+
+```{r}
+clip_to_merge <- clip_by_image %>%
+  select(-age) %>%
+  rename(age = kid_age) %>% 
+  select(age, unique_ids, category, correct_or_not) %>%
+  mutate(model = 'clip')
+
+vgg_vs_clip <- classification_data %>%
+  select(-age) %>%
+  rename(age = age_numeric, unique_ids = session_id) %>%
+  mutate(model = 'vgg') %>%
+  select(unique_ids, age, category, model, correct_or_not) %>%
+  full_join(clip_to_merge)
+
+```
+
+```{r}
+vgg_vs_clip_vs_humans <- vgg_vs_clip %>%
+  left_join(humans_merged %>% select(unique_ids, category, num_correct) %>% rename(human_correct = num_correct))
+
+```
+
+```{r}
+vgg_vs_clip_easy <- vgg_vs_clip_vs_humans %>%
+  filter(human_correct == 1) %>%
+  group_by(model, category) %>%
+  summarize(model_correct = mean(correct_or_not), num_images = n()) %>%
+  mutate(category = fct_reorder(category, -model_correct))
+```
+```{r}
+vgg_vs_clip_easy_stats <- vgg_vs_clip_easy %>%
+  summarize(avg_model_correct = mean(model_correct), sd_model_correct = sd(model_correct))
+
+```
+
+```{r}
+summary(lmer(data = vgg_vs_clip_easy, model_correct ~ model + (1|category)))
+```
+
+```{r}
+ggplot(vgg_vs_clip_easy, aes(x=category, y=model_correct, color=model)) +
+  geom_point(aes(size = num_images)) +
+  theme_few() +
+  ylab('Model percent correct') +
+  ylim(0,1) +
+  ggtitle('CLIP vs VGG performance on very recognizable drawings')
+
+```
+
+```{r}
+
+ggplot(easiest_to_recognize, aes(x=category, y=model_correct)) +
+  geom_point(aes(size = num_images)) +
+  theme_few() +
+  ylab('CLIP percent correct') +
+  ggtitle('CLIP performance on very recognizable drawings')
+
+```
+
+
+
+```{r}
+ggplot(vgg_vs_clip_vs_humans, aes(x=correct_or_not, y=human_correct, color=model)) +
+  theme_few() +
+  geom_smooth(aes(group=model), method='lm') +
+  geom_jitter(width=.2, height=.01, alpha=.2) +
+  facet_grid(~model) +
+  ylab('Average human recognition') +
+  xlab('Model recognition') +
+  scale_x_continuous(breaks = c(0,1))
+
+```
+
+
+```{r}
+ggplot(vgg_vs_clip_vs_humans, aes(x=correct_or_not, y=human_correct, color=model)) +
+  theme_few() +
+  geom_smooth(aes(group=model), method='lm') +
+  geom_jitter(width=.1, height=.01, alpha=.2) +
+  facet_wrap(~category) +
+  ylab('Average human recognition') +
+  xlab('Model recognition')
+```

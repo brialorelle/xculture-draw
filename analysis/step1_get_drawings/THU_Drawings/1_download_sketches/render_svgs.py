@@ -35,6 +35,7 @@ if not os.path.exists(sketch_dir):
 
 session_id = []
 subID=[]
+subID_cleaned=[]
 age=[]
 category = []
 condition=[] 
@@ -44,16 +45,19 @@ svg = []
 stroke_count = [] 
 
 ### read in valid sessions csv
-subject_log_csv= '/Users/brialong/Documents/GitHub/devphotodraw/data/THU/demographics/final_subject_info.csv'
+# subject_log_csv= '/Users/brialong/Documents/GitHub/devphotodraw/data/THU/demographics/final_subject_info.csv'
+subject_log_csv= '/Users/brialong/Documents/GitHub/d evphotodraw/data/THU/strokes_raw/to_add_space.csv'
 subject_log = pd.read_csv(subject_log_csv)
 total_sessions = subject_log['ID_Database_raw']
 age_data = subject_log['Age']
+cleaned_subids = subject_log['ID_Database'] 
 count_sub=0
 
 
 
 for s in total_sessions:
     sub_age = age_data[count_sub]
+    sub_cleaned_subids = cleaned_subids[count_sub]
     count_sub = count_sub + 1
     print 'rendering for {}, gone through {} of {} subs'.format(s, count_sub, np.size(total_sessions))
     img_recs_selector = {'selector': {'dataType':'finalImage', 'subID': s}}
@@ -61,6 +65,14 @@ for s in total_sessions:
     image_recs = sorted(img_recs_temp, key=lambda image: image['endTrialTime'])
     
     print 'found {} images for {}'.format(np.size(image_recs), s)
+    if np.size(image_recs)==0:
+        s=s + ' '
+        print('added space')
+        img_recs_selector = {'selector': {'dataType':'finalImage', 'subID': s}}
+        img_recs_temp = db.find(img_recs_selector)
+        image_recs = sorted(img_recs_temp, key=lambda image: image['endTrialTime'])
+        print 'found {} images for {}'.format(np.size(image_recs), s)
+
     for imrec in image_recs:  
         stroke_recs = {'selector': {'dataType':'stroke','category':imrec['category'], 'subID': s}}
         stroke_recs_temp = db.find(stroke_recs) 
@@ -83,6 +95,7 @@ for s in total_sessions:
                             svg.append(this_svg)
                             stroke_count.append(this_stroke)
                             subID.append(s)
+                            subID_cleaned.append(sub_cleaned_subids)
                             session_id.append(imrec['sessionId'])        
                             category.append(imrec['category'])
                             condition.append(imrec['condition'])
@@ -102,13 +115,13 @@ for s in total_sessions:
 
         # test it
         if (count_sub==3):
-            X_out = pd.DataFrame([session_id, subID, age, category, condition, filename, ref_image_name, stroke_count, svg])
+            X_out = pd.DataFrame([session_id, subID, subID_cleaned, age, category, condition, filename, ref_image_name, stroke_count, svg])
             X_out = X_out.transpose()
-            X_out.columns = ['session_id','subID','age','category','condition','filename', 'ref_image_name', 'stroke_count','svg']
+            X_out.columns = ['session_id','subID','subID_cleaned','age','category','condition','filename', 'ref_image_name', 'stroke_count','svg']
             X_out.to_csv(os.path.join(output_dir, 'THU_photodraw_e2' + '_svg_output' + '2022.csv'))
 
-X_out = pd.DataFrame([session_id, subID, age, category, condition, filename, ref_image_name, stroke_count, svg])
+X_out = pd.DataFrame([session_id, subID, subID_cleaned, age, category, condition, filename, ref_image_name, stroke_count, svg])
 X_out = X_out.transpose()
-X_out.columns = ['session_id','subID','age','category','condition','filename', 'ref_image_name','stroke_count','svg']
-X_out.to_csv(os.path.join(output_dir, 'THU_photodraw_e2' + '_svg_output' + '2022.csv'))
+X_out.columns = ['session_id','subID','subID_cleaned','age','category','condition','filename', 'ref_image_name','stroke_count','svg']
+X_out.to_csv(os.path.join(output_dir, 'THU_photodraw_e2' + '_svg_output' + '_June2022_spaces_added.csv'))
 

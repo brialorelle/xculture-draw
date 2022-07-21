@@ -89,11 +89,17 @@ tracings_by_category <- tracings_to_include %>%
 
 # copy included drawings/tracings and rename
 ```{r}
+recopy=FALSE
+if (recopy){
 file.copy(fs::path(drawing_path, drawings_to_include$fullPath), fs::path(compiled_dataset_path, drawings_to_include$better_filename))
+}
 ```
 
 ```{r}
+if (recopy){
 file.copy(fs::path(drawing_path, tracings_to_include$fullPath), fs::path(compiled_tracing_dataset_path, tracings_to_include$better_filename))
+}
 ```
+
 
 

@@ -1,0 +1,134 @@
+---
+title: "Examine_photodraw_classifications"
+author: "Bria Long"
+date: "4/2021"
+output: html_document
+---
+
+```{r, libraries}
+library(knitr)
+library(tidyverse)
+library(assertthat)
+library(ggthemes)
+library(langcog)
+library(stringr)
+library(here)
+theme_set(theme_few())
+```
+ 
+```{r}
+cdm_strokes <- read_csv(here::here('data/CDM/strokes_raw/CDM_photodraw_e2_svg_output2022.csv')) %>%
+  select(-filename, -`...1`) %>%
+  mutate(session_id = str_split_fixed(session_id, 'CDM_', 2)[,2]) %>%
+  mutate(unique_ids = session_id) %>%
+  select(-session_id)
+```
+
+
+## Get THU strokes wtih cleaned subid as column
+```{r}
+thu_joined <- read_csv(here::here('data/THU/strokes_raw/THU_photodraw_e2_svg_output_May2022.csv')) %>%
+  select(-filename, -`...1`, -subID) %>%
+  rename(unique_ids = subID_cleaned) 
+
+length(unique(thu_joined$unique_ids))
+
+```
+
+
+### Weren't enough subs -- error in subid reading..
+Discovered that the subid raw column had spaces that had gotten edited back out, so went through and rewrote stsrokes for those subs
+```{r}
+# issues <-read_csv(here::here('data/THU/demographics/final_subject_info.csv')) %>%
+#   filter(!ID_Database %in% thu_strokes$subID)
+  
+```
+
+```{r}
+# what<-read_csv(here::here('data/THU/strokes_raw/THU_photodraw_e2_svg_output_May2022.csv'))
+#   # filter(is.na(subID))
+```
+
+## Import extra strokes
+```{r}
+all_thu<-read_csv(here::here('data/THU/strokes_raw/THU_photodraw_e2_svg_output_June2022_spaces_added.csv')) %>%
+  select(-filename, -`...1`, -subID) %>%
+  rename(unique_ids = subID_cleaned) %>%
+  full_join(thu_joined)
+```
+## check subjects
+```{r}
+length(unique(all_thu$unique_ids))
+```
+
+## Join processed thu and cdm data
+```{r}
+all_strokes <- all_thu %>%
+  full_join(cdm_strokes %>% mutate(age = as.double(str_split_fixed(age,'age',2)[,2]))) %>%
+  select(-subID) %>%
+  filter(! category %in% c('this square','this shape','rectangle','triangle')) %>%
+  # P_car_sketch_age5_IPAD3_THU5M7.png
+  mutate(filename = paste0(condition,'_',category,'_sketch_age',floor(age),'_', unique_ids,'.png'))
+```
+
+## Save it out
+```{r}
+write_csv(all_strokes,here::here('data/compiled/strokes_preprocessed/all_strokes.csv'))
+```
+
+
+### Compare to metadata
+
+```{r}
+# load and clean up "category" for tracing trials
+all_meta <- read.csv(here::here('data/compiled/metadata/final_merged_metadata.csv')) %>%
+    mutate(category = as.character(category)) %>%
+    mutate(category = case_when(category == 'this square' ~ 'square',
+                                category == 'this shape' ~ 'shape',                                
+                                TRUE ~ as.character(category))) 
+
+# subIDs are unique identifier in recognition data for THU, session_ids in CDM data
+meta_thu <- all_meta %>%
+  filter(site=='THU') %>%
+  mutate(unique_ids = subID) %>%
+  mutate(draw_duration = draw_duration / 1000) # in ms for thu, whoops
+
+meta_cdm <- all_meta %>%
+  filter(site=='CDM') %>%
+  mutate(unique_ids = session_id) 
+
+## unique IDs are now the identifier which will be used to join with machine/human recognition data
+all_meta_cleaned <- meta_cdm %>%
+  full_join(meta_thu) 
+```
+
+```{r}
+unique_ids_strokes = unique(all_strokes$unique_ids)
+unique_ids_meta = unique(all_meta_cleaned$unique_ids)
+sort(unique_ids_strokes) == sort(unique_ids_meta)
+```
+
+```{r}
+# Make sure we have all the right filenames
+meta_filenames= sort(unique(all_meta_cleaned$filename))
+strokes_filenames= sort(unique(all_strokes$filename))
+length(strokes_filenames)
+length(meta_filenames)
+
+
+missing <- all_meta_cleaned %>%
+  filter(!category %in% c('square','shape','rectangle','triangle')) %>% # exclude shapes
+  mutate(filename_check = paste0(condition,'_',category,'_sketch_age',floor(age_numeric),'_', unique_ids,'.png')) %>%
+  filter(!filename_check %in% strokes_filenames) 
+
+# Draiwngs from the 2 10-year-olds -- have 'age9' so don't get the exact filename match with variables
+
+```
+
+```{r}
+# missing_subs = unique(missing$subID)
+# 
+# missing_subs_demo <-read_csv(here::here('data/THU/demographics/final_subject_info.csv')) %>%
+#   filter(ID_Database %in% missing_subs)
+  
+```

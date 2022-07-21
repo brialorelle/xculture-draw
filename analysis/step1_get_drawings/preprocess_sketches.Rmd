@@ -1,0 +1,58 @@
+---
+title: "preprocess_sketches CDM"
+author: "Bria Long"
+date: "9/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readr)
+library(assertthat)
+library(knitr)
+library(here)
+library(lubridate)
+```
+
+
+```{r}
+drawing_path = here::here('data/CDM/drawings/full_set/')
+filtered_dataset_path =  here::here('data/CDM/drawings/object_drawings')
+dir.create(filtered_dataset_path)
+
+compiled_dataset_path = here::here('data/compiled/drawings/object_drawings')
+# dir.create(filtered_dataset_path)
+dir.create(compiled_dataset_path)
+```
+
+
+```{r}
+all_drawings = list.files(path=drawing_path, pattern = ".png$", recursive = TRUE) %>%
+    as_tibble()  %>%
+    rename(fullPath = value) 
+  
+practice_categories = c('triangle','this shape','this square','rectangle')
+
+drawing_info = all_drawings %>%
+    mutate(fileNameShort = str_split_fixed(fullPath,"/",2)[,2]) %>%
+    mutate(condition = str_split_fixed(fileNameShort,"_",2)[,1]) %>%
+    mutate(category = str_split_fixed(fileNameShort,"_",3)[,2]) %>%
+    mutate(id = str_split_fixed(fileNameShort,"_",4)[,4]) %>%
+   select(fileNameShort, fullPath, category, condition) %>%
+  filter(!category %in% practice_categories)
+
+
+ 
+```
+
+
+# copy all drawings and rename
+```{r}
+file.copy(fs::path(drawing_path, drawing_info$fullPath), fs::path(filtered_dataset_path, drawing_info$fileNameShort))
+
+file.copy(fs::path(drawing_path, drawing_info$fullPath), fs::path(compiled_dataset_path, drawing_info$fileNameShort))
+
+
+
+```

@@ -1,0 +1,53 @@
+---
+title: "merge_metadata_with_svgs"
+author: "Bria Long"
+date: '2022-05-25'
+output: html_document
+---
+
+
+
+```{r, libraries}
+library(knitr)
+library(tidyverse)
+library(assertthat)
+library(ggthemes)
+library(langcog)
+library(stringr)
+library(here)
+theme_set(theme_few())
+```
+
+```{r}
+meta = read_csv(here::here('data/compiled/metadata/final_merged_metadata.csv'))
+```
+```{r}
+practice_categories = c('triangle','this shape','this square','rectangle')
+```
+
+# And now merge with stroke data and resave cleaned versions
+```{r}
+cdm <- read_csv(here::here('data/CDM/strokes_raw/CDM_photodraw_e2_svg_output2022.csv'))
+thu <- read_csv(here::here('data/THU/strokes_raw/THU_photodraw_e2_svg_output2022.csv'))
+```
+
+
+```{r}
+all_svgs <- cdm %>%
+  select(-'...1') %>%
+  mutate(age = as.double(str_split_fixed(age,'age',2)[,2])) %>%
+  full_join(thu %>% select(-'...1')) %>%
+  select(-filename) %>%
+  rename(age_numeric = age)
+```
+
+```{r}
+missing_subs <- meta %>%
+  filter(subID %in% all_svgs$subID) %>%
+  distinct(subID)
+```
+
+```{r}
+all_svgs_with_meta <- all_svgs %>%
+  left_join(meta %>% select(-age))
+```

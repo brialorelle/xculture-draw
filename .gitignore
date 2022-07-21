@@ -13,6 +13,12 @@ analysis/auth_info.txt
 .DS_Store
 .DS_Store
 *.png
+
+# ignore manuscript cache
+writing/Manuscript_2022_cache/*
+writing/_submission_docs/*
+
+
 #  ignore old scripts
 analysis/_main_analyses_only_cdm_srcd/*
 analysis/_photodraw_pilot/*
@@ -112,3 +118,5 @@ analysis/step3_check_classifications/CDM_Drawings/compiled_classifications/.Clas
 analysis/step3_check_classifications/CDM_Drawings/.examine_photodraw_classifications.Rmd.icloud
 analysis/step1_get_drawings/CDM_Drawings/photodraw2/.descriptives_check.Rmd.icloud
 analysis/step5_tracing_evaluation/step1_render_highres_tracings/render_drawings.ipynb
+analysis/step4_get_features_and_classifications/1_extract_features/extract_features_clip.py
+analysis/step4_get_features_and_classifications/1_extract_features/clip_embedding_new.py

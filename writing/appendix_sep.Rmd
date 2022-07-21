@@ -1,0 +1,28 @@
+---
+title: Appendix 
+author: 
+  - name          : "Blinded"
+documentclass     : "docx"
+classoption       : "man"
+output            : papaja::apa6_doc
+bibliography      : ["references.bib"]
+
+---
+
+```{r}
+knitr::opts_chunk$set(fig.crop = FALSE, 
+                      fig.path='figs/', echo=FALSE, warning = FALSE, 
+                      cache=FALSE, message = FALSE, sanitize = TRUE)
+```
+
+```{r}
+library(papaja)
+library(tidyverse)
+```
+
+# Tracing Scores
+
+To compute these error components, we applied an image registration algorithm, AirLab [@sandkuhler2018], to align each tracing to the target shape, yielding an affine transformation matrix that minimized the pixel-wise correlation distance between the aligned tracing, $T$, and the target shape, $S$: $Loss_{NCC} = - \frac{\sum S \cdot T - \sum E(S) E(T)}{N \sum Var(S) Var(T)}$, where $N$ is the number of pixels in both images.  The shape error was defined by the final correlation distance between the aligned tracing and the target shape. The spatial error was defined by the magnitude of three distinct error terms: location, orientation, and size error, derived by decomposing the affine transformation matrix above into translation, rotation, and scaling components, respectively. In sum, this procedure yielded four error values for each tracing: one value representing the shape error (i.e., the pixel-wise correlation distance) and three values representing the spatial error (i.e., magnitude of translation, rotation, scaling components). 
+
+We used the tracing quality ratings to obtained in @long2021parallel to assign weights to each of their error terms; adult observers ($N$=70) rated 1325 tracings (i.e., 50-80 tracings per shape per age) and evaluated “how well the tracing matches the target shape and is aligned to the position of the target shape” on a 5-point scale. An ordinal regression mixed-effects model to predict these 5-point ratings, which contained correlation distance, translation, rotation, scaling, and shape identity (square vs. star) as predictors, with random intercepts for rater. This model yielded parameter estimates that could then be used to score each tracing in the dataset; we averaged scores for both shapes to yield a single tracing score for each participant.
+

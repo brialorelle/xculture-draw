@@ -13,7 +13,7 @@
     "engine.io-client": "^3.3.2",
     "express": "^4.16.4",
     "jsonfile": "~2.4.0",
-    "karma": "^2.0.0",
+    "karma": "^6.4.1",
     "lodash": "^4.17.4",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
@@ -22,7 +22,7 @@
     "npm": "^6.12.0",
     "paper": "~0.11.2",
     "request": "^2.81.0",
-    "socket.io": "^1.7.4",
+    "socket.io": "^4.5.3",
     "underscore": "~1.7.0",
     "xmldom": "^0.1.27",
     "xmlhttprequest": "^1.8.0"

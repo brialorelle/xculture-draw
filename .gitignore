@@ -124,3 +124,6 @@ analysis/step1_get_drawings/CDM_Drawings/photodraw2/.descriptives_check.Rmd.iclo
 analysis/step5_tracing_evaluation/step1_render_highres_tracings/render_drawings.ipynb
 analysis/step4_get_features_and_classifications/1_extract_features/extract_features_clip.py
 analysis/step4_get_features_and_classifications/1_extract_features/clip_embedding_new.py
+writing/.trackdown/Manuscript_2023.Rmd-chunk_info.rds
+writing/.trackdown/Manuscript_2023.Rmd-header_info.rds
+writing/_old_exploratory_for_revision.Rmd

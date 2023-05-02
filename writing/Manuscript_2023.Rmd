@@ -1,0 +1,716 @@
+---
+title             : "Developmental consistency in children’s drawings of object categories"
+shorttitle        : "Development of drawing"
+
+author: 
+  - name          : "Bria Long"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "450 Jane Stanford Way, Stanford CA 94305"
+    email         : "bria@stanford.edu"
+  - name          : "Ying Wang"
+    affiliation   : "2"
+  - name          : "Stella Christie"
+    affiliation   : "2"
+  - name          : "Michael C. Frank"
+    affiliation   : "1"
+  - name          : "Judith E. Fan"
+    affiliation   : "3"
+
+affiliation:
+  - id            : "1"
+    institution   : "Stanford University"
+  - id            : "2"
+    institution   : "Tsinghua University"
+  - id            : "3"
+    institution   : "University of California, San Diego"
+
+authornote: |
+
+abstract: |
+ Children's drawings of common object categories become dramatically more recognziable across development. What are the major factors that explain this developmental change? Here we examined the degree to which these developmental changes in recognizability vary across different drawing tasks (i.e. drawing from observation vs. from memory), geographical locations (San Jose, US vs. Beijing, China), and with children's tracing abilities. To do so, we collected digital drawings of object categories (e.g., cat, airplane) from 4-9 year-olds (N=253). We found that the developmental trajectory of drawing recognizability was remarkably similar when children were asked to draw from observation vs. memory and across these two geographical locations. In addition, we found that our Beijing sample produced more recognizable drawings but showed similar tracing abilities to children from San Jose, USA. Overall, this work suggests that the developmental trajectory of children's drawings is remarkably consistent and not easily explainable by changes in domain general changes in visuomotor control or working memory.
+ 
+keywords          : "children's drawings, visual production, tracing, object recognition, visuomotor control"
+wordcount         : "X"
+
+bibliography      : ["references.bib"]
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : no
+mask              : no
+draft             : no
+
+documentclass     : "docx"
+classoption       : "man"
+output            : papaja::apa6_doc
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+library(tidyverse)
+library(here)
+library(assertthat)
+library(langcog)
+library(ggthemes)
+library(knitr)
+library(lmerTest)
+library(lme4)
+library(xtable)
+library(viridis)
+library(papaja)
+library(NatParksPalettes)
+```
+
+```{r}
+knitr::opts_chunk$set(fig.crop = FALSE, 
+                      fig.path='figs/', echo=FALSE, warning = FALSE, 
+                      cache=FALSE, message = FALSE, sanitize = TRUE)
+```
+
+As humans, we have many powerful tools to externalize what we perceive and know, including language and gesture.
+One tool that has been especially transformative for human cognition and culture is graphical representation, which allows people to encode their thoughts in a visible, durable format.
+Drawing is an important case study in graphical representation, being a technique that dates back 60,000 years [@hoffmann2018u], well before the emergence of symbolic writing systems, and is practiced in many cultures.
+
+In modern times, drawings are produced prolifically by children from an early age. 
+Figurative drawings have long provided inspiration for scientists investigating children's emerging cognitive abilities [@minsky1972artificial], and accordingly a long history of work has examined changes in how children draw objects across development [@piaget1929child; @kellogg1969analyzing; @karmiloff1990constraints; @fury1997children].
+Indeed, there appear to be dramatic changes in how children encode diagnostic visual information in their drawings across age: younger children (4-5 years) tend to include fewer cues in their drawings to differentiate between categories (e.g., \textit{adult} vs. \textit{child}) than older children, who enrich their drawings with more diagnostic part [@sitton1992drawing] and relational [@light1983effects] information. 
+ 
+What drives these dramatic changes in children's drawings across development? 
+A common view is that these changes are driven primarily by children's increasing ability to plan and control their motor movements [@freeman1987current; @rehrig2018does]. 
+While such changes in visuomotor control are clearly important, this view fails to account for other important constraints on children's drawings — including what children know about a given visual concept and how well children are able to access this conceptual knowledge when producing a drawing. 
+
+Prior work has provided evidence that changes in children's drawings partly reflect changes in children's mental representations of visual concepts. In a large observational dataset, older children produced drawings of object categories that were more diagnostic of the categories they were trying to depict [@long2018drawings; @long2021parallel]. This result held even when accounting for differences in basic shape tracing abilities and the amount of effort children expended on individual drawings. Furthermore, older children also relied more on these same diagnostic visual features when recognizing other children's drawings.
+Together, these results suggest that developmental change in these underlying conceptual representations drive parallel changes in both children's production and recognition of drawings, and thus that change in how well children can produce recognizable drawings do not only reflect improvements in motor control [@natu2016development; @dekker2011dorsal]. 
+
+However, this work leaves open the contribution of children's evolving abilities to retrieve and maintain relevant information in memory. Children's ability to access semantic knowledge about categories and to maintain this information in mind when producing a drawing likely changes across childhood [@pailian2016visual]. Here, we directly test the idea that a principal reason younger children produce less recognizable drawings is because they simply have more difficulty recalling the relevant visual features of different categories: that is, when asked to "draw a [rabbit]", they may struggle to conjure up the relevant visual details and then hold in mind what rabbits tend to look like. On this account, providing children with additional visual information about different categories -- for example, via canonical photographs of typical exemplars -- could help them improve their drawings of these categories, as it does with adults [@fan2018common]. 
+
+However, prior work also suggests that younger children tend to draw what they know about objects rather than integrate information in their immediate perceptual experience [@luquet1927dessin]. For example, when asked to draw from observation, younger children tend to include features that are not visible from their vantage point, yet are diagnostic of category membership (e.g., a handle on a \textit{mug}) [@bremmer1984prior; @barrett1976symbolism], and only omit these features later in development. Similarly, young children will insist that their nearly identical drawings of different concepts (e.g., balloon and person) unambiguously refer to different things [@bloom1998intention]. 
+Thus, an alternative possibility is that only older children may be able to produce more recognizable drawings when provided with canonical exemplars of different categories. 
+On this account, memory constraints are not a major factor that drives developmental changes in children's drawings.
+
+To tease apart these alternatives, we investigated the development of children's ability to produce recognizable drawings of visual concepts when children were provided with a verbal cue ("Can you draw a [rabbit]?) versus when provided with a picture cue ("Can you draw this [rabbit] as it looks in the picture?"). On verbal-cue trials, children thus must access their mental representation of a "rabbit" and choose the features necessary to convey that object's identity. Conversely, on picture-cue trials, children are explicitly asked to rely on the visual features provided in a canonical photograph of each object category. 
+
+To test the generality of our findings, we recruited children from two sites in different countries — San Jose, USA and Beijing, China.
+Most empirical studies on children's drawings have been conducted exclusively on small samples of children from the United States or Western Europe, limiting their generalizability. Further, children in different communities may spend more or less time practicing drawing or use different visual conventions to draw [@cohn2012explaining; @willats2006making]. While some prior work has focused on differences in children's drawings across different countries, most of this work has focused on differences in educational practices that are thought to manifest in children's drawings [@la2001children; @winner1989can; @huntsinger2011cultural]. Leaving aside questions about potential causes of differences between sites, here we focus on measuring the degree to which drawing abilities vary between children at these two sites using the same experimental protocol. 
+
+Finally, we assessed the degree to which visuomotor development accounts for observed developmental changes in drawing recognizability. While it is uncontroversial that visuomotor control can constrain how and what we can draw, little work has directly related measures of visuomotor control to measures of drawing recognizability [@long2021parallel]. To do so, we measured each child's visuomotor control via a shape tracing task and related these measurements of tracing accuracy to the recognizability of the drawings that each child produced. 
+
+In sum, in the current study we collect shape tracings and digital drawings of visual concepts from 4-9 year-old children in Beijing, China and San Jose, USA using both picture cues and verbal cues. In doing so, we make three key contributions to our understanding of the development of children's drawings. First, we replicate our prior findings  [@long2021parallel] that the recognizability of children's drawings increases steadily throughout this age range (4-9 years). Second, we test the degree to which memory constraints might account for these developmental changes. In keeping with accounts of naïve realism and against a large role of limitations on memory, we predicted that only older children would be able to use the visual information present in the canonical photographs to improve their drawings. Third, we test the generalizability of our findings across two sites in different countries. We predicted that we would see convergence in the development of drawing abilities across both geographical sites, with older children becoming progressively better at producing recognizable drawings. In addition, we predicted that most of the variance across geographical sites in drawing ability would be explainable by differences in visuomotor control, operationalized as performance on a shape tracing task; these primary analyses were pre-registered at: https://osf.io/qymjr/.
+
+# Methods
+```{r plotting-params}
+base_size_chosen=12; smooth_alpha=.2
+```
+
+```{r load-metadata}
+# load and clean up "category" for tracing trials
+all_meta <- read.csv(here::here('data/compiled/metadata/final_merged_metadata.csv')) %>%
+    mutate(category = as.character(category)) %>%
+    mutate(category = case_when(category == 'this square' ~ 'square',
+                                category == 'this shape' ~ 'shape',                                
+                                TRUE ~ as.character(category))) 
+
+# subIDs are unique identifier in recognition data for THU, session_ids in CDM data
+meta_thu <- all_meta %>%
+  filter(site=='THU') %>%
+  mutate(unique_ids = subID) %>%
+  mutate(draw_duration = draw_duration / 1000) # in ms for thu, whoops
+
+meta_cdm <- all_meta %>%
+  filter(site=='CDM') %>%
+  mutate(unique_ids = session_id) 
+
+## unique IDs are now the identifier which will be used to join with machine/human recognition data
+all_meta_cleaned <- meta_cdm %>%
+  full_join(meta_thu) 
+```
+
+
+```{r load-tracing}
+# import, standardized spliced session_ids, and join back together
+# tracing IDs are read in by session_ids, so need these to join with metadata
+tracing_thu <- read.csv(here::here('data/compiled/tracing_outputs/transformed_tracings.csv'))  %>%
+  mutate(session_id =  paste0('Tsinghua_photodraw_',session_id)) %>%
+  filter(site=='Tsinghua') %>%
+  left_join(meta_thu, by=c('session_id','category')) %>%
+  dplyr::select(-X.1, -X, -site.x, -filename.y) %>%
+  rename(site = site.y, filename = filename.x) 
+
+tracing_cdm <- read.csv(here::here('data/compiled/tracing_outputs/transformed_tracings.csv'))  %>%
+  filter(site=='CDM') %>%
+  mutate(session_id = paste0('photodraw_',session_id)) %>%
+  left_join(meta_cdm, by=c('session_id','category')) %>%
+  dplyr::select(-X.1, -X, -site.x, -filename.y) %>%
+  rename(site = site.y, filename = filename.x) 
+  
+# for modeling tracing scores for each shape (square/shape) separately for each participant
+all_tracing <- tracing_thu %>%
+  full_join(tracing_cdm) 
+
+# for per-subject tracing estimates
+tracing_by_sub <- all_tracing %>%
+  group_by(unique_ids) %>%
+  summarize(avg_tracing_score = mean(rating))
+```
+
+
+```{r load-human-recognition}
+humans <- read.csv(here::here('data/compiled/recognition_ratings/compiled_human_recognition.csv')) 
+  
+```
+
+```{r join-human-rec-with-meta}
+d <- humans %>%
+  group_by(unique_ids, category, image_name_short, site, age) %>% # group by each drawing of each category
+  summarize(num_correct = sum(correct_or_not==TRUE), num_incorrect = sum(correct_or_not==FALSE), prop_correct = mean(correct_or_not))  %>%
+   left_join(all_meta_cleaned %>% dplyr::select(unique_ids, category, condition, num_strokes, draw_duration, mean_intensity)) %>%
+  mutate(age_numeric = age) %>%
+  mutate(age_numeric = as.double(age_numeric)) %>%
+  mutate(age_numeric = case_when(age_numeric == 10 ~ 9, # merge 2 10-year-olds into THU data for 9-year-olds
+                                 TRUE ~ age_numeric)) %>%
+  left_join(tracing_by_sub) %>%
+  mutate(site = as.factor(site), condition = as.factor(condition)) %>%
+  mutate(site = fct_recode(site, "San Jose" = "CDM", "Beijing" = "THU"))%>%
+  mutate(condition = fct_recode(condition, "Picture cue" = "P", "Verbal cue" = "S")) 
+
+```
+
+```{r count-participants}
+participant_counts <- d %>%
+  group_by(age_numeric, site) %>%
+  summarize(num_participants = length(unique(unique_ids))) 
+
+count_by_site <- d %>%
+  group_by(site) %>%
+  summarize(num_participants = length(unique(unique_ids))) 
+
+count_by_category <- d %>%
+  group_by(category) %>%
+  summarize(num_drawings = length(unique(unique_ids)))
+
+count_by_id <- d %>%
+  group_by(unique_ids) %>%
+  summarize(num_drawings = length(unique(category))) 
+```
+
+## Participants
+265 participants were recruited from two local children's museum in San Jose and at preschool and elementary schools outside of Beijing; approximately equal numbers of participants were recruited in Northern California and the Beijing area. Our goal was to recruit 120 children between 4-9 years of age after exclusions (i.e. 20 4-year-olds, 20 5-year-olds, etc.) at each geographical site. In the San Jose sample, 135 children participated in the experiment; 6 participants were excluded, (3) for skipping more than 6 drawing trials and (3) for scribbling three or more times in a row. Six additional participants were tested but their data was not recorded due to a technical error, and two participants never advanced past the practice trials, leading to a final sample of `r count_by_site$num_participants[1]` children. In the Beijing sample, `r count_by_site$num_participants[2]` children participated; an additional 8 participants were tested but their data was not recorded due to a technical error with the remote database. Two 10-year-olds (aged 10 years, 0 months and 10 years, 1 month) were accidentally tested and included in the 9-year-old age group. On average, each child contributed `r mean(count_by_id$num_drawings)` drawings to analysis (min = `r min(count_by_id$num_drawings)`, max = `r max(count_by_id$num_drawings)`). No additional demographic data was recorded about the participants. This protocol was approved by both the Institutional Review Board at [blinded] (43992, Development of Children's Drawing Abilities) and the Department of Psychology Ethics Committee at [blinded] in Beijing, China.
+
+## Stimuli and Task Procedure
+
+Children were seated in front of a touchscreen tablet (Ipad Pro 12.9") during each drawing session.
+At the beginning of the session, a trained experimenter first told each child, “After this game is over, someone is going to try to recognize what you were trying to draw. So, please draw so that someone else could guess what you were trying to draw.” 
+A native English speaker gave these instructions to the San Jose sample, and a native Mandarin speaker gave a translation of these instructions to the Beijing sample. 
+Following these instructions, children completed 2 shape-tracing trials, providing a baseline measure of visuomotor control in the absence of memory demands.
+All children first traced a square, then a more complex shape (see Figure \ref{fig:example-tasks}).
+After these tracing trials, children produced drawings of 12 familiar object categories (airplane, bike, bird, car, cat, chair, cup, hat, house, rabbit, tree, watch).
+Strokes could not be deleted once drawn, and children had to complete each trial within 30 seconds.
+Across trials, we manipulated the type of cue (verbal vs. picture) children received before producing each drawing (Fig. \ref{fig:example-tasks}), providing a measure of the impact of reminding children of what typical exemplars of each category looked like. 
+Specifically, children first completed six trials with one cue type, then switched to the other cue type. 
+The order in which each cue type was used was counterbalanced across children.
+On verbal-cue trials, children viewed a short video clip in which an experimenter named the target category: “What about a [cat]? Can you draw a [cat]?”.  
+On picture-cue trials, children viewed a photograph of a typical exemplar of the target category while listening to an audio clip of the same experimenter who said, “What about this [cat]? Can you draw the [cat] as it looks in the picture?”
+The photograph remained on the screen for the duration of the drawing trial.
+There were three different exemplars of each category used in this study, one of which was randomly sampled on each picture-cue trial.
+All experimental code, videos, translations, and stimuli are available on the public repository for this project. 
+
+```{r example-tasks, fig.env = "figure", out.width="100%", fig.pos = "H", fig.cap = "Example trials from the tracing assessment and two drawing tasks."}
+knitr::include_graphics("figs/task_examples_updated.png")
+```
+
+## Measuring drawing effort covariates
+We recorded both the final drawings and the location of each stroke in a digital format, allowing us to precisely measure several different variables that provided proxies for the amount of effort children invested in producing each drawing.
+Specifically, we measured: (1) the amount of time spent (i.e., end time of last stroke — start time of first stroke), (2) the number of individual strokes drawn, and (3) the amount of "ink" used (i.e., proportion of drawing canvas that was filled). 
+
+## Measuring Tracing Accuracy
+As in prior work [@long2021parallel], we used a semi-automated procedure for evaluating how accurately each child performed the tracing task that was validated against empirical judgments of tracing quality. In brief, we decomposed tracing accuracy into two components: a shape error component and a spatial error component. Shape error reflects how closely the participant’s tracing matched the contours of the target shape; the spatial error reflects how closely the location, size, and orientation of the participant’s tracing matched the target shape. These two error components were computed automatically for each tracing and used to yield a "tracing score" for each tracing that mirrors adult human judgments of tracing quality (see Appendix for details).
+
+## Measuring drawing recognizability 
+```{r}
+# note: hard coding footnote so we don't have to load and join all model classificaitons on each render..
+
+# human_v_model = cor.test(humans_and_models_merged$prop_correct, humans_and_models_merged$correct_or_not)
+```
+
+```{r}
+edu = c(17,83,298,953,202,2018)
+edu_out <- edu %>%
+  as_tibble() %>%
+  rownames_to_column() 
+  
+
+```
+
+We measured the recognizability of each drawing via an online recognition experiment. 
+Adult participants based in the U.S. were recruited via Prolific for a 15-minute experiment, compensated at $14/hour, and asked to identify the category depicted in a random subset of approximately 140 drawings. 
+Each subset of drawings was balanced with respect to age, category, and site, and each drawing was shown to 10 participants. 
+Participants were shown these drawings in a random sequence and asked "What does this look like?"
+Participants selected their responses from the set of 12 categories and were encouraged to provide their best guess if they were unsure. 
+No participants were excluded from analysis for missing the catch trial, which was included to verify that participants could accurately describe their goal in this task. 
+We then computed a recognition score for each drawing, reflecting the proportion of participants who correctly identified the target category. 
+^[While in our pre-registration we planned to use automated recognition scores as our main dependent variable, following prior work [@long2021parallel], we found that automated recognition scores were only modestly correlated with human recognition ($r$ = .4, p < .001) and that descriptive plots of the automated recognition scores revealed an overall difference between the two drawing tasks that was not evident in the human recognition data. To be conservative, we thus fit all of our models to the human recognition data.]
+
+
+
+## Statistical models
+To evaluate our main hypotheses, we fit generalized linear mixed-effects models to the human recognition scores to assess the factors that influenced the recognizability of the drawings that children produced. A first generalized linear mixed effect model was fit to the recognizability scores for each drawing, including fixed effects of children's age (in years), geographical site (San Jose vs. Beijing), and drawing task (verbal cue vs. picture cue) and the three-way interaction between these key variables. We initially planned to include random slopes for the effect of drawing task on each child (as this varied within-subjects), and random slopes for the effect the full three-way interactions between task, age, and site on each category. However, models with this random-effects structure failed to converge, and the reported models use the maximal random effects structure that did converge, which included random slopes for the two-way interaction between task and age on each category.
+
+In a secondary analysis, we investigated the degree to which any of the above effects were mediated by children's tracing abilities or the amount of effort that children expended while drawings. 
+We fit the same model above with additional fixed-effects terms for each child's estimated tracing score (see Measuring Tracing Abilities), the time that child spent drawing (in seconds), the amount of "ink" used (i.e. percentage of non-white pixels in the drawn image), and the number of strokes produced. 
+These additional predictors were first z-scored before being included in the model.
+Finally, we also assessed the degree to which tracing ability development differed across geographical sites, where tracing scores were modeled as a function of age (in years), site, and their interaction, with the same random-effects structure as the first model.  
+This analysis plan was pre-registered at https://osf.io/qymjr.
+
+
+```{r}
+full_model <- glmer(cbind(num_correct, num_incorrect) ~ condition*scale(age_numeric)*site +
+                        (condition | unique_ids) +
+                        (condition*scale(age_numeric) | category),
+      data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+full_model_out = summary(full_model)
+
+```
+
+```{r}
+full_model_with_effort <- glmer(cbind(num_correct, num_incorrect) ~ condition*scale(age_numeric)*site +
+                      scale(avg_tracing_score) +
+                      scale(mean_intensity) +
+                      scale(draw_duration) +
+                      scale(num_strokes) + 
+                      (condition | unique_ids) +
+                      (condition*scale(age_numeric) | category),
+      data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+
+full_model_with_effort_out = summary(full_model_with_effort)
+
+```
+
+```{r}
+## Extra models after peer-review
+### composite effort score
+
+d <- d %>%
+  ungroup %>%
+  mutate(avg_tracing_score_scaled = scale(avg_tracing_score),
+         mean_intensity_scaled = scale(mean_intensity),
+         draw_duration_scaled = scale(draw_duration)) %>%
+  mutate(effort_compiled = avg_tracing_score_scaled + mean_intensity_scaled + draw_duration_scaled)
+```
+
+```{r}
+full_model_with_effort_combined <- glmer(cbind(num_correct, num_incorrect) ~ condition*scale(age_numeric)*site +
+                      scale(avg_tracing_score) +
+                      scale(effort_compiled) + 
+                      (condition | unique_ids) +
+                      (condition*scale(age_numeric) | category),
+      data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+
+full_model_with_effort_combined_out = summary(full_model_with_effort_combined)
+
+```
+
+```{r}
+# correct_by_effort_and_site <- glmer(cbind(num_correct, num_incorrect) ~ scale(draw_duration)*site + age_numeric + condition +
+#                       (1 | unique_ids) +
+#                       (scale(age_numeric) | category),
+#       data = d,family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+# 
+# correct_by_effort_and_site_out = summary(correct_by_effort_and_site)
+```
+
+
+```{r}
+drawing_duration_by_site <- lmer(scale(draw_duration) ~ site*condition + 
+                      (1 | unique_ids) +
+                      (scale(age_numeric) | category),
+      data = d)
+
+drawing_duration_out = summary(drawing_duration_by_site)
+
+papaja::apa_table(drawing_duration_out$coefficients, caption='"Model coefficients from a linear mixed mode predicting the how long children spent on each drawing as a function of site (Beijing vs. San Jose) and drawing condition.')
+```
+```{r}
+num_strokes_by_site <- lmer(scale(num_strokes) ~ site*condition  + 
+                      (1 | unique_ids) +
+                      (scale(age_numeric) | category),
+      data = d)
+
+num_strokes_by_site_out = summary(num_strokes_by_site)
+papaja::apa_table(num_strokes_by_site_out$coefficients, caption='"Model coefficients from a linear mixed mode predicting the number of strokes children made on each drawing as a function of site (Beijing vs. San Jose) and drawing condition.')
+```
+
+```{r}
+intensity_by_site <- lmer(scale(mean_intensity) ~ site*condition  + 
+                      (1 | unique_ids) +
+                      (scale(age_numeric) | category),
+      data = d)
+
+intensity_by_site_out = summary(intensity_by_site)
+papaja::apa_table(intensity_by_site_out$coefficients, caption='"Model coefficients from a linear mixed mode predicting the amount of "ink" (i.e., average drawing intensity) children used on each drawing as a function of site (Beijing vs. San Jose) and drawing condition.')
+```
+
+```{r}
+effort_by_site <- lmer(scale(effort_compiled) ~ site*age_numeric  + 
+                      (1 | unique_ids) +
+                      (scale(age_numeric) | category),
+      data = d)
+
+effort_out = summary(effort_by_site)
+papaja::apa_table(effort_out$coefficients, caption='"Model coefficients from a linear mixed mode predicting the amount of overall effort children used on each drawing (sum of z-scored effort covariates -- ink, strokes, and time) as a function of site (Beijing vs. San Jose) and drawing condition.')
+```
+
+
+```{r}
+indiv_by_acc <- d %>%
+  group_by(unique_ids, avg_tracing_score_scaled) %>%
+  summarize(prop_correct = mean(prop_correct)) 
+
+cor.test(indiv_by_acc$avg_tracing_score_scaled, indiv_by_acc$prop_correct)
+```
+
+
+```{r}
+covariates <- d %>% select(num_strokes, draw_duration, mean_intensity, avg_tracing_score)
+
+covariates_cor_table = round(cor(covariates),3)
+rownames(covariates_cor_table)<-c('Number of strokes','Drawing duration (s)','Mean intensity','Average tracing score')
+colnames(covariates_cor_table)<-c('Number of strokes','Drawing duration (s)','Mean intensity','Average tracing score')
+
+papaja::apa_table(covariates_cor_table, caption="Pearsons corellation coefficients for all effort covariates (estimed for each drawing) and tracing scores (estimated by each participant).")
+
+```
+
+
+```{r}
+# site_difference <- glmer(cbind(num_correct, num_incorrect) ~ poly(scale(age_numeric),2)*site +
+#                       (1 | unique_ids) +
+#                       (1 | category),
+#       data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+# 
+# 
+# site_difference_out = summary(site_difference)
+```
+
+ 
+# Results
+### Confirmatory Analyses
+
+We found steady changes in the recognizability of children's drawings as a function of age (Figure \ref{fig:main-results}), replicating prior work using the verbal-cue paradigm under less controlled settings [@long2021parallel]. 
+Moreover, we found that this age-related change did not depend on the drawing task children completed: Children's drawings were just as recognizable when they were cued with a photograph ("Draw this rabbit as it looks in the picture") as when they were cued with the category label ("Can you draw a rabbit?").  
+While we thought that older children might produce more recognizable drawings when cued with a photograph of a highly prototypical exemplar, as adult participants do [@yang2021visual], we did not find evidence of an interaction between age and cue type. 
+However, we did observe a main effect of geographical site: children in Beijing, China produced drawings that were more recognizable than did children in San Jose, USA (Table 1), reflecting steeper age-related gains earlier in development. 
+
+To follow up on this effect of site, we tested two potential sources of variation: visuomotor control and effort. 
+Insofar as differences in visuomotor control could explain differences between groups, we reasoned that this would manifest as a difference in tracing ability that predicts variation in drawing recognizability. 
+Instead, we found that children across the two sites were indistinguishable with respect to tracing ability on average (Figure \ref{fig:tracing}), although individual tracing scores were strong predictors of the recognizability of their own drawings, as in prior work [@long2021parallel]. 
+Next, we evaluated whether there were systematic differences in effort between the two groups, as measured by the amount of time each child spent producing their drawings and the number of strokes drawn. 
+Figure \ref{fig:effort-covariates} shows three effort covariates -- average intensity, number of strokes used, and time spent drawing -- measured for each drawing as a function of children's age, drawing task, and geographical site.  
+We found that children spent more time drawing when prompted with a picture cue than a verbal cue, and that children in the Beijing group spent more time on their drawings than their counterparts in San Jose.
+
+We then included children's average tracing scores and effort covariates measured for each drawing (average intensity, number of strokes used, and time spent drawing) as fixed effects into a second generalized linear mixed-effects model (see Statistical Models). 
+If effort and/or tracing ability is sufficient to account for the differences between sites, we reasoned that we should no longer observe a main effect of geographical site on drawing recognizability in this expanded statistical model.
+Instead, we observed a significant effect of geographical site (see Table 2), even after having accounted for the effect of individual differences in tracing ability as well as effort covariates for each drawing that was produced. Nonetheless, children's tracing abilities were clearly related to the degree they were able to produce recognizable drawings. Together, these results suggest that these site differences in the ability to produce recognizable drawings are not explained by differences in effort or tracing ability. 
+
+### Exploratory Analyses
+In a set of exploratory analyses, we examined how the developmental trajectory for drawing recognizability varied across object categories. For example, some object categories (e.g., cat) may be easier to draw than others (e.g., watch), resulting in shallower or steeper changes in recognizability over age. However, we did not have strong hypotheses about how these trajectories might additionally vary with geographical locations. 
+
+Figure \ref{fig:item-effects} shows considerable variation in drawing recognizability across the 12 categories as a function of geographical site and age. For example, certain distinctions between similar categories (e.g., cats and rabbits) were more difficult to make, especially for younger children. In addition, children in the Beijing group produced more recognizable drawings of certain categories at all ages -- including airplanes, birds, and rabbits -- while older children in San Jose produced more recognizable drawings of bikes. Figure \ref{fig:example-drawings} shows recognizable, randomly sampled example drawings from 6-year-olds at each category, site, and condition. As a whole, these exploratory analyses provide converging evidence for systematic differences between object categories and geographical site that are not easily attributable to differences in effort.
+
+```{r render-drawings, include=FALSE}
+# set.seed(123)
+# set.seed(234)
+# sample_drawings <- d %>%
+#   filter(prop_correct>.8) %>%
+#   filter(age_numeric==6) %>%
+#   group_by(category, condition, site) %>%
+#   sample_n(1)
+#   
+# sample_drawings <- sample_drawings %>%
+#   mutate(image_path = here::here('data/compiled/drawings/object_drawings', image_name_short)) %>%
+#   mutate(new_image_path = here::here('data/compiled/drawings/sample_drawings2', image_name_short)) 
+# 
+# dir.create(here::here('data/compiled/drawings/sample_drawings2'))
+# 
+# file.copy(sample_drawings$image_path, sample_drawings$new_image_path)
+
+```
+
+```{r check-drawing-time}
+drawing_time <- lmer(draw_duration ~ condition*scale(age_numeric)*site +
+                      (1 | unique_ids) +
+                      (1 | category),
+      data = d)
+drawing_time_out = summary(drawing_time)
+```
+
+```{r compile-main-results}
+cor_by_age_by_site_by_cond <- d %>%  
+  group_by(unique_ids,category,condition,age_numeric, site) %>%
+  summarize(avg_cor = mean(prop_correct)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_cor")  %>%
+  mutate(cond_by_site = as.factor(paste0(condition,', ',site)))
+
+cor_by_age_by_site_by_cond_indiv <- d %>%  
+  group_by(unique_ids,category,condition,age_numeric, site) %>%
+  summarize(avg_cor = mean(prop_correct)) %>%
+  mutate(cond_by_site = as.factor(paste0(condition,', ',site)))
+```
+
+```{r main-results, fig.env="figure", out.width = "\\textwidth", fig.pos = "H", fig.align = "center", fig.width=8, fig.height=5, fig.cap = "Proportion of drawings recognized as a function of the age of the child who completed each drawing, the geographical site they were tested at (San Jose vs. Beijing), and the type of drawing task they completed. Individual data points represent drawings within each condition by an individual participant and are slightly jittered. Error bars show bootstrapped 95 percent cofnidence intervals."}
+ggplot(cor_by_age_by_site_by_cond, aes(age_numeric,mean, col = cond_by_site)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.4),size=.5) +
+  geom_point(data = cor_by_age_by_site_by_cond_indiv, aes(x=age_numeric, y=avg_cor), position=position_jitterdodge(jitter.width = NULL,
+  jitter.height = .001,
+  dodge.width = 0.4,
+  seed = 123), alpha=.03, size=.5) +
+  scale_x_continuous(breaks=c(4,5,6,7,8,9)) +
+  theme_few(base_size = base_size_chosen, base_family = "Helvetica") + 
+  labs(x='Age (in years)', y='Proportion drawings recognized') +
+  ylim(-.01,1.01) + 
+  geom_smooth(span=10, alpha=.1) +
+  # scale_color_viridis(discrete=TRUE, name="", option='B', begin=.2, end=.4) +
+  scale_color_manual(values = natparks.pals("Acadia", 9)[c(1,9,3,7)], name="") +
+    # scale_color_manual(values = natparks.pals("Banff", 7)[c(1,4,2,5)], name="") +
+  theme(legend.position = 'none', aspect.ratio=1.3) +
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  facet_grid(~site)
+
+ggsave('figures_pdf/figure3_main_results.pdf',width=7.2, height=3, units='in')
+```
+
+
+
+```{r output-models-1}
+cleaned_names_full_model = c("Intercept","Task","Age","Site","Task*Age","Task*Site","Age*Site","Task*Age*Site")
+rownames(full_model_out$coefficients)<-cleaned_names_full_model
+
+papaja::apa_table(full_model_out$coefficients, caption='"Model coefficients from a generalized linear mixed mode predicting the recognizability of each drawing for the main experimental contrasts.')
+
+```
+
+
+```{r output-models-2}
+cleaned_names_full_model_with_effort = c("Intercept","Task","Age","Site","Est. tracing score","Avg. intensity", "Draw duration", "Number of strokes","Task*Age","Task*Site", "Age*Site","Task*Age*Site")
+
+rownames(full_model_with_effort_out$coefficients)<-cleaned_names_full_model_with_effort
+
+apa_table(full_model_with_effort_out$coefficients, caption='Model coefficients from a generalized linear mixed mode predicting the recognizability of each drawing as a function the both the main experimental contrasts (task, site, and age) as well as several effort covariates and estimates of children\'s tracing abilities.')
+
+```
+
+
+```{r get-descriptives-across-age}
+draw_duration <- d %>%
+  group_by(unique_ids,condition,age_numeric, site) %>%
+  summarize(avg_draw_duration = mean(draw_duration)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_draw_duration") %>%
+  mutate(cond_site = as.factor(paste0(condition,', ',site)))
+
+num_strokes <- d %>%
+  group_by(unique_ids,condition,age_numeric,site) %>%
+  summarize(avg_num_strokes = mean(num_strokes)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_num_strokes") %>%
+  mutate(cond_site = as.factor(paste0(condition,', ',site)))
+
+avg_intensity <- d %>%
+  group_by(unique_ids,condition,age_numeric,site) %>%
+  summarize(avg_intensity = mean(mean_intensity)) %>%
+  group_by(age_numeric,condition, site) %>%
+  multi_boot_standard(col = "avg_intensity") %>%
+  mutate(cond_site = as.factor(paste0(condition,', ',site)))
+```
+
+
+```{r plot-effort, include=FALSE}
+## Make compiled plot of descriptives
+base_size_chosen=10 # size of text in plots
+smooth_alpha=.2
+
+p1=ggplot(draw_duration, aes(age_numeric,mean, color=cond_site)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5), size=.3) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Draw duration (s)') +
+  scale_color_manual(values = natparks.pals("Acadia", 9)[c(1,9,3,7)], name="") +
+  theme(legend.position = "none") + 
+  ylim(0,30) +
+  scale_x_continuous(breaks=c(4,5,6,7,8,9)) +
+  facet_grid(~site)
+
+p2=ggplot(avg_intensity, aes(age_numeric,mean, color=cond_site)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5), size=.3) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Ink used (mean intensity)') +
+  scale_color_manual(values = natparks.pals("Acadia", 9)[c(1,9,3,7)], name="") +
+  theme(legend.position = "none") + 
+  scale_x_continuous(breaks=c(4,5,6,7,8,9))+
+  ylim(.02,.08) +
+  facet_grid(~site)
+
+p3=ggplot(num_strokes, aes(age_numeric,mean, color=cond_site)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position = position_dodge(width = 0.5), size=.3) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Number of strokes') +
+  theme(legend.position = "none") +
+  scale_color_manual(values = natparks.pals("Acadia", 9)[c(1,9,3,7)], name="") +
+  scale_x_continuous(breaks=c(4,5,6,7,8,9)) +
+  ylim(0,15) +
+  facet_grid(~site)
+```
+
+```{r effort-covariates, fig.env="figure", out.width = "\\textwidth", fig.pos = "H", fig.align = "center", fig.width=8, fig.height=3, fig.cap = "Effort covariates measured during the drawing task -- amount of time spent drawing, amount of 'ink' used, and number of strokes used -- as function of the age of the child who completed each drawing, the geographical site they were tested at (San Jose vs. Beijing), and the type of drawing task they completed. Error bars show bootstrapped 95 percent cofnidence intervals."}
+cowplot::plot_grid(p1,p2,p3,nrow=1)
+ggsave('figures_pdf/figure5_efforts.pdf', width=7.2, units='in', height=2.4)
+```
+
+```{r}
+tracing_scores_indiv <- d %>%
+  ungroup() %>%
+  distinct(unique_ids, avg_tracing_score, site, age_numeric)
+
+tracing_scores <- tracing_scores_indiv %>%
+  group_by(age_numeric, site) %>%
+  multi_boot_standard(col = 'avg_tracing_score')
+```
+
+
+```{r}
+tracing_score_stats = summary((lm(data = tracing_scores_indiv, avg_tracing_score ~ scale(age_numeric)*site)))
+
+
+papaja::apa_table(tracing_score_stats$coefficients, caption='"Model coefficients from a  linear regression predicting the average tracing score of each child as a function of their age and the site at which they participated.')
+
+```
+
+```{r tracing, fig.env="figure", out.width = "\\textwidth", fig.pos = "H", fig.align = "center", fig.width=8, fig.height=4, fig.cap = "Average tracing scores across age and site; each dot represents an average tracing score obtained for each participant and are slightly jittered. Error bars represent bootstrapped 95 percent confidence intervals."} 
+ggplot(tracing_scores, aes(x=age_numeric,y=mean, col=site)) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), size=.1) +
+  geom_jitter(data = tracing_scores_indiv, aes(x=age_numeric, y=avg_tracing_score), width=.2, height=.01, alpha=.5, size=.5) +
+  theme_few(base_size = base_size_chosen) +
+  labs(x='Age', y='Tracing score') +
+  theme(legend.position = "none", aspect.ratio=1.3) +
+  geom_smooth(span = 20,alpha=smooth_alpha, aes(group =site), size=.5)  +
+  scale_x_continuous(breaks=c(4,5,6,7,8,9)) +
+  facet_grid(~site) +
+  ylim(-.1,4.1) +
+  scale_color_manual(values = natparks.pals("Acadia", 9)[c(2,8)])
+  # scale_color_viridis(discrete=TRUE, name="", option='B', begin=0, end=.4)
+
+ggsave('figures_pdf/figure4_tracingscores.pdf',width=3, height=2.4, units='in')
+```
+
+```{r example-drawings, fig.env = "figure", out.width="100%", fig.pos = "H", fig.label="exampledetections", fig.cap = "Randomly sampled, highly recognized drawings for each task, category, and geographical site made by 6-year-old children."}
+knitr::include_graphics("figs/example_drawings.png")
+```
+
+```{r}
+item_effects_not_spread <- d %>%
+  group_by(unique_ids,age_numeric,category, site) %>%
+  summarize(avg_sub_cor = mean(prop_correct)) %>%
+  group_by(age_numeric,category, site) %>%
+  multi_boot_standard(col = "avg_sub_cor")
+
+item_effects_with_condition<- d %>%
+  group_by(unique_ids,age_numeric,category,condition, site) %>%
+  summarize(avg_sub_cor = mean(prop_correct)) %>%
+  group_by(age_numeric,category, condition, site) %>%
+  multi_boot_standard(col = "avg_sub_cor") %>%
+  mutate(cond_by_site = as.factor(paste0(condition, ', ', site)))
+```
+
+```{R}
+ggplot(item_effects_with_condition
+       , aes(x=as.numeric(age_numeric), y=mean, color=cond_by_site)) +
+  geom_point(alpha=.8) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2), alpha=.8) +
+  theme_few(base_size = base_size_chosen) + 
+  ylim(0,1) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  ylab('Proportion drawings recognized') +
+  xlab('Age (in years)') +
+  geom_abline(color = 'grey', intercept=0) +
+  geom_smooth(span=20, alpha=.1) +
+  facet_wrap(~category) +
+  theme(legend.position = 'bottom') +
+    scale_color_manual(values = natparks.pals("Acadia", 9)[c(1,3,9,7)], name="") 
+```
+
+```{r item-effects, fig.env="figure", out.width = "\\textwidth", fig.pos = "H", fig.align = "center", fig.width=8, fig.height=8, fig.cap = "Developmental trajectory of drawing recognizability for each category and for each geographical site. Error bars represent 95 percent bootstrapped confidence intervals."} 
+ggplot(item_effects_not_spread, aes(x=as.numeric(age_numeric), y=mean, color=site)) +
+  geom_point(alpha=.6) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2), alpha=.8) +
+  theme_few(base_size = base_size_chosen) + 
+  ylim(0,1.01) + 
+  geom_hline(yintercept = 1/12, linetype="dashed", color="grey") +
+  ylab('Proportion drawings recognized') +
+  xlab('Age (in years)') +
+  geom_abline(color = 'grey', intercept=0) +
+  geom_smooth(span=20, alpha=.1) +
+  facet_wrap(~category, nrow=2) +
+  theme(legend.position = 'none') +
+  scale_color_manual(values = natparks.pals("Acadia", 9)[c(2,8)])
+
+    # scale_color_manual(values = natparks.pals("Acadia", 9)[c(2,8)], name="") 
+  # scale_color_viridis(discrete=TRUE, name="", option='B', begin=0, end=.4)
+
+ggsave('figures_pdf/figure6_item_effects.pdf',width=7.2, height=2.6, units='in')
+```
+
+# General Discussion
+Here we examined developmental change in children's ability to produce recognizable drawings of familiar visual concepts, and the degree to which this ability is constrained by retrieval of diagnostic attributes from memory. 
+We manipulated memory demands by either cueing children with a category label ("Can you draw a [cat]?") or a color photo ("Can you draw this [cat] as it looks in the picture?"), and measured the recognizability of each drawing to adult observers. 
+To evaluate the generality of our findings, we recruited two groups of children in different sites: San Jose, USA and Beijing, China. 
+We found steady improvement from 4-9 years of age in both groups of children, replicating prior work conducted in a field setting [@long2021parallel]. We did not find an effect of drawing cue type, however, suggesting that younger children's drawings are unlikely to be constrained by their ability to recall category-diagnostic visual features when they are trying to draw them. 
+
+We also discovered that drawing recognizability differed between sites: children in the Beijing group produced more recognizable drawings than those in the San Jose group. While these group-level differences are intriguing, they remain consistent with wide variety of potential explanations.One idea is that children in the Beijing group drew at their preschool and elementary schools, whereas children in the San Jose group drew in a room at a children's science museum; these two testing environments could have created motivational differences that affected how much effort children put into their drawings. However, contra a strong version of this account, we found that the substantial individual variation in basic shape tracing ability and effort (as assessed via ink, time, and strokes spent while drwaing) was insufficient to account for differences in drawing recognizability between groups. 
+
+A second possibility is that the children who are learning to produce the complex, visually-demanding characters in the Chinese language that have meaningful subparts [@mcbride2016chinese; @mcbride2015learning] may develop more sophisticated visuomotor skills that are recruited while drawing. For example, the skills necessary to generate, combine, and arrange multiple shape parts in specific locations may be well-practiced by children learning to produce Chinese characters, and not well captured by the relatively simple shape tracing assessment that we used. Future work that relates writing, tracing, and drawing abilities within individual children learning to write different languages will be useful for understanding the degree to children's writing and drawing abilities inform each other more generally.
+
+Finally, we also found that the groups differed with respect to which visual concepts were easier for children to convey in their drawings, perhaps reflecting different patterns of exposure to these concepts. 
+Indeed, another natural question for future work concerns the relationship between the kind of experience children have with these visual concepts and the way they produce drawings of them. For example, if some children are exposed to a wide variety of illustrations of some concepts but not others (e.g., in books or other media), they may also be able to produce more recognizable drawings of those concepts. Conversely, if some children spend more time drawing certain visual concepts but not others (e.g., in school or at home), they may also be better at recognizing graphical representations of them in other contexts, and perhaps explicitly identifying their diagnostic features. Prior work has found that older children not only produce more recognizable drawings of object categories, but also tend to be better at recognizing other children's drawings [@long2021parallel], providing evidence that visual production and recognition abilities are related throughout childhood at the group level. However, further investigation will be necessary for understanding what kinds of experience are responsible for concurrent developmental changes in these two behaviors at the individual level.
+
+Thus, further systematic measurement of drawing behavior across a wider variety of geographical, socioeconomic, and cultural contexts will be crucial for producing more robust and precise estimates of developmental variability, critical to strongly evaluate causal theories of such variation [@amir2020cross; @carstensen2021investigating; @frank2021variability]. On the other hand, without such datasets it can be tempting to draw unwarranted causal inferences about the impact of single demographic covariates, such as nationality [@winner1989can; @kuwabara2016cultural]. We have thus made our drawing dataset publicly available to contribute to this more cumulative effort and also to reduce barriers to investigation of other aspects of these drawings other than their recognizability, such as which visual features children prioritized in their drawings, the order in which they drew them, as well as variation in visual style [@gernhardt2015cultural; @senzaki2014holistic]. 
+
+Overall our result thus support a domain-specific account of the development of drawing abilities: children's ability to convey their knowledge about familiar visual concepts does not seem to be influenced by how they are cued to draw a given visual concept, and changes systematically across age in two different geographical contexts. We propose that further investigation into the factors that influence how children learn to identify and combine the relevant diagonstic features of different visual concepts will further explain individual and age-related variation in drawing abilities. More broadly, we believe that this approach to concurrently quantifying multiple sources of variation in the context of rich, naturalistic behaviors will lead to more robust and unified theories of cognitive development. 
+
+<!-- further our understanding of the relative impact of age, task settings, and geographical context on the ability of children to communicate their knowledge about familiar visual concepts by drawing.  -->
+
+
+
+# Acknowledgements  a
+[BLINDED]
+<!-- We thank Yi Feng and Megan Merrick for assistance with data collection. We also thank the San Jose Children's Discovery Museum for their collaboration, as well as the parents at XX and XX preschool whose children participated. Thanks to members of the Stanford Language and Cognition lab for their feedback. This work was funded by an NSF SPRF-FR Grant \#1714726 to BLL and a Jacobs Foundation Fellowship to MCF.  -->
+
+
+
+# References
+```{r create_r-references}
+r_refs(file = "references.bib")
+```
+
+<!-- # Appendix Table B1: drawing duration -->
+<!-- # Appendix Table B2: intensity -->
+<!-- # Appendix Table B3: strokes -->
+<!-- # Appendix Table B4: compiled effort -->
+
+<!-- # Appendix A: Tracing Score Calculation -->
+
+<!-- To compute these error components, we applied an image registration algorithm, AirLab [@sandkuhler2018], to align each tracing to the target shape, yielding an affine transformation matrix that minimized the pixel-wise correlation distance between the aligned tracing, $T$, and the target shape, $S$: $Loss_{NCC} = - \frac{\sum S \cdot T - \sum E(S) E(T)}{N \sum Var(S) Var(T)}$, where $N$ is the number of pixels in both images.  The shape error was defined by the final correlation distance between the aligned tracing and the target shape. The spatial error was defined by the magnitude of three distinct error terms: location, orientation, and size error, derived by decomposing the affine transformation matrix above into translation, rotation, and scaling components, respectively. In sum, this procedure yielded four error values for each tracing: one value representing the shape error (i.e., the pixel-wise correlation distance) and three values representing the spatial error (i.e., magnitude of translation, rotation, scaling components).  -->
+
+<!-- We used the tracing quality ratings to obtained in @long2021parallel to assign weights to each of their error terms; adult observers ($N$=70) rated 1325 tracings (i.e., 50-80 tracings per shape per age) and evaluated “how well the tracing matches the target shape and is aligned to the position of the target shape” on a 5-point scale. An ordinal regression mixed-effects model to predict these 5-point ratings, which contained correlation distance, translation, rotation, scaling, and shape identity (square vs. star) as predictors, with random intercepts for rater. This model yielded parameter estimates that could then be used to score each tracing in the dataset; we averaged scores for both shapes to yield a single tracing score for each participant. -->
+
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+\endgroup
+

@@ -61,6 +61,7 @@ library(lme4)
 library(xtable)
 library(viridis)
 library(papaja)
+library(NatParksPalettes)
 ```
 
 ```{r}
@@ -324,6 +325,43 @@ full_model_with_effort_out = summary(full_model_with_effort)
 
 ```
 
+## Extra models after peer-review
+
+### composite effort score
+```{r}
+
+d <- d %>%
+  ungroup %>%
+  mutate(avg_tracing_score_scaled = scale(avg_tracing_score),
+         mean_intensity_scaled = scale(mean_intensity),
+         draw_duration_scaled = scale(draw_duration)) %>%
+  mutate(effort_compiled = avg_tracing_score_scaled + mean_intensity_scaled + draw_duration_scaled)
+```
+
+```{r}
+
+full_model_with_effort_combined <- glmer(cbind(num_correct, num_incorrect) ~ condition*scale(age_numeric)*site +
+                      scale(avg_tracing_score) +
+                      scale(effort_compiled) + 
+                      (condition | unique_ids) +
+                      (condition*scale(age_numeric) | category),
+      data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+
+
+full_model_with_effort_combined_out = summary(full_model_with_effort_combined)
+
+```
+
+```{R}
+tracing_score_by <- glmer(cbind(num_correct, num_incorrect) ~ condition*scale(age_numeric)*site +
+                      scale(avg_tracing_score) +
+                      scale(effort_compiled) + 
+                      (condition | unique_ids) +
+                      (condition*scale(age_numeric) | category),
+      data = d, family='binomial', control=glmerControl(optCtrl=list(maxfun=20000),optimizer=c("bobyqa")))
+```
+
+
 ```{r}
 # site_difference <- glmer(cbind(num_correct, num_incorrect) ~ poly(scale(age_numeric),2)*site +
 #                       (1 | unique_ids) +
@@ -560,6 +598,11 @@ tracing_scores_indiv <- d %>%
 tracing_scores <- tracing_scores_indiv %>%
   group_by(age_numeric, site) %>%
   multi_boot_standard(col = 'avg_tracing_score')
+```
+
+
+```{r}
+lmer(data = tracing_scores_indiv, avg_tracing_score ~ scale(age_numeric)*site + (1|unique_ids))
 ```
 
 ```{r tracing, fig.env="figure", out.width = "\\textwidth", fig.pos = "H", fig.align = "center", fig.width=8, fig.height=4, fig.cap = "Average tracing scores across age and site; each dot represents an average tracing score obtained for each participant and are slightly jittered. Error bars represent bootstrapped 95 percent confidence intervals."} 

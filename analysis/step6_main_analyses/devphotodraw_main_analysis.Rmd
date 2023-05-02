@@ -279,7 +279,7 @@ ggplot(humans_and_models, aes(age_numeric,mean, col = condition)) +
 ```
 ```{r}
 base_size_chosen=12; smooth_alpha=.2
-ggplot(humans_and_models_no_site, aes(age_numeric,mean, col = conditionf)) +
+ggplot(humans_and_models_no_site, aes(age_numeric,mean, col = condition)) +
   geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), position=position_dodge(width=.2)) +
   theme_few(base_size = base_size_chosen) + 
   labs(x='Age', y='Classification accuracy') +
@@ -399,6 +399,12 @@ p2
 ```{r}
 p3
 ```
+
+##
+```{r}
+
+```
+
 
 ### Plot traing scores
 ```{r}

@@ -1,2 +1,4 @@
 # devphotodraw
-Development of drawing experiments that can be run offline across various different sites
+
+Repository for analyzing and running the experiments in the following paper: 
+https://psyarxiv.com/fpebs/
